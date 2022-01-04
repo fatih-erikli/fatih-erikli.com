@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Fatih Erikli</title>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?cd7cbb162b744229a27c091f0200ba4e" />
+    <link rel="stylesheet" href="styles.css?cd7cbb162b744229a27c091f0200ba4e" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false" role="main">
+  <div role="heading">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="200" alt="Logo" />
+    Fatih Erikli
+  </a>
+</div>
+
+  <div aria-label="blog posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="0" tabindex="-10">
+      <h3 aria-label="Title"><a role="link" href="the-role-of-cryptology-in-web-applications.html">The role of cryptology in web applications</a></h3>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Cryptology and cryptography is an interdisciplinary field of study
+in computer sciences and math. Cryptography in computer 
+programming, covers the techniques of secure communication in
+computer systems and internet. Secure communication is not something
+nice to have, but it is something must to have in our times. That's why
+cryptography is an inseparable field of study in computer sciences.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="1" tabindex="-11">
+      <h3 aria-label="Title"><a role="link" href="test-driven-approach-to-worker-based-applications-development.html">Test-driven approach to worker-based web applications development</a></h3>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Test driven development is the way of developing a software based
+on the tests you have initially written. In traditional way of 
+development, we create the application, test them manually,
+and create tests or ignore them. In test-driven approach,
+you create the tests and run them first, see them failing,
+and start implementing the application by seeing the
+tests results are passing one by one incrementally.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="2" tabindex="-12">
+      <h3 aria-label="Title"><a role="link" href="security-concerns-on-server-side-rendered-web-applications.html">My security concerns on server-side rendered web applications</a></h3>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In the current state of web development, the line between backend and frontend
+development has become almost invisible. The reason of that is we started to use
+Javascript for both client-side and server-side after NodeJS. And furthermore,
+we started to render the same components for both client-side and server side.
+This is also known as SSR (server-side-rendered) applications and universal web
+applications.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="3" tabindex="-13">
+      <h3 aria-label="Title"><a role="link" href="indexeddb-transactional-database-in-client-side.html">IndexedDB: High-performance transactional database in client side</a></h3>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>As you may already know, HTTP is a stateless protocol. The communication
+between the client and server happens with some flags sent by client and server mutually.
+It means, we actually don't really know which user is authenticated. User
+is sending their session id via HTTP cookies and we (server) retrieve the related record
+from the database, and prepare the page response with the information of
+authenticated user.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="4" tabindex="-14">
+      <h3 aria-label="Title"><a role="link" href="creating-user-authentication-in-cloudflare-workers.html">Creating a user authentication with Cloudflare Workers</a></h3>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I have been trying serverless computing platforms in last years. Basically these platforms allows you
+to publish functions and execute them periodically, or by triggering it
+with an HTTP request.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="5" tabindex="-15">
+      <h3 aria-label="Title"><a role="link" href="asyncio-streams.html">You don't actually need a AsyncIO version of a database driver</a></h3>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In my previous blog-post, I created a simple http server that calls a
+redis method; increases the specified key with request body
+in the redis store.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="6" tabindex="-16">
+      <h3 aria-label="Title"><a role="link" href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a></h3>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I am not going to create yet another http server for asyncio, rather,
+I will share some code pieces that I can create simple http endpoints
+for AsyncIO.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="7" tabindex="-17">
+      <h3 aria-label="Title"><a role="link" href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO's event loop</a></h3>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>AsyncIO is a built-in python library to write concurrent
+code with a new language keywords "async" and "await'. AsyncIO landed
+into python in 3.3 version. Since the Python2 is no longer supported,
+AsyncIO will be our swiss army knife to handle:</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="8" tabindex="-18">
+      <h3 aria-label="Title"><a role="link" href="silence.html">Silence</a></h3>
+      <div aria-label="Description" role="contentinfo" class="post-preview"></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="9" tabindex="-19">
+      <h3 aria-label="Title"><a role="link" href="my-manic-episode.html">MentalHealthError: My manic episode</a></h3>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>This was my second episode. In contrast to the previous one,
+this time I was aware that I have something wrong. The self-isolation during
+the pandemic and aftermath some family issues lead me to experience the second breakdown.</p></div>
+    </article>
+    </div>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>You don't actually need a AsyncIO version of a database driver</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?9478531d77fd4bd8972ef37913f2d4e8" />
+    <link rel="stylesheet" href="styles.css?9478531d77fd4bd8972ef37913f2d4e8" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false">
+  <div role="heading" class="sidebar">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="220" height="220" alt="Logo" />
+    <h1>Fatih Erikli</h1>
+  </a>
+  <p role="doc-subtitle">Full-stack software engineer, currently works for <a rel="nofollow" target="_blank" href="https://graphcommons.com">Graph Commons</a>.</p>
+  <div role="navigation" aria-label="Main">
+    <a rel="nofollow" href="https://github.com/fatih-erikli" target="_blank"><img src="./github-icon.png" alt="octopus cat" />fatih-erikli</a>
+    <a rel="nofollow" href="https://twitter.com/fatiherikliuniq" target="_blank"><img src="./twitter-icon.svg" alt="twitter bird" />fatiherikliuniq</a>
+  </div>  
+  <div area-label="Projects" class="projects">
+    <h5>Projects</h5>
+    <a href="https://fatih-erikli.github.io/time-tracker">
+      <span style="background: rgb(40, 40, 255)"></span>
+      Time tracker</a>
+      <p>Time tracker for freelancers and contractors.</p>
+    <a href="https://fatih-erikli.github.io/dark-rectangles">
+      <span style="background: rgb(40, 40, 40)"></span>
+      Dark rectangles</a>
+      <p>Figma-style zoomable and panneble area implemented in React.</p>
+
+    <a href="https://fatih-erikli.github.io/color-picker">
+      <span style="background: linear-gradient(to right, blueviolet, fuchsia);"></span>
+      Color Picker</a>
+      <p>Pure React color picker with web safe colors as a preset and last used colors.</p>
+  </div>
+</div>
+
+  <div aria-label="blog detail" role="article" tabindex="-1">
+    <h3 role="heading">You don't actually need a AsyncIO version of a database driver</h3>
+    <article role="document">
+      <time>30 Nov, 2021</time>
+      <p>In my previous blog-post, I created a simple http server that calls a
+redis method; increases the specified key with request body
+in the redis store.</p>
+<ul>
+<li><a href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a></li>
+<li><a href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO</a></li>
+</ul>
+<p>In this article, I will share how the communication between our python
+process and redis happens.</p>
+<p>Lets dive into it.</p>
+<ul>
+<li>Our HTTP Server is a TCP server which is running on 80 port.</li>
+<li>Redis is a TCP server which is running on 6379 port.</li>
+</ul>
+<p>We are able to create a server and client with built-in AsyncIO library.
+In practice, we are sending a TCP package to the redis-server
+and waiting a response for the message that we have sent. This is all.</p>
+<p>Using a third party library is a trade-off. Each package that you install
+separately increases the tech-debt of your project. I think, instead of
+increasing the tech-debt and using an extra module to interact with a
+database or key-value store such as redis; we can try to talk to it
+as same as how we talk to other TCP clients.</p>
+<p>Let's try. We will use telnet. Redis is running on 6379 port.</p>
+<pre><code>$ telnet 127.0.0.1 6379
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+ping
++PONG
+</code></pre>
+<p>Wow it works. It seems like a magic :) But it is not a magic.
+This is how the database drivers work under the hood.</p>
+<p>Lets try to send a message and listen for a response in AsyncIO.</p>
+<pre><code class="language-python">import asyncio
+
+async def redis_client():
+    reader, writer = await asyncio.open_connection(
+        '127.0.0.1', 6379)
+    message = 'ping\n'
+    print(f'Send: {message!r}')
+    writer.write(message.encode())
+    await writer.drain()
+    data = await reader.read(100)
+    print(f'Received: {data.decode()!r}')
+    print('Close the connection')
+    writer.close()
+    await writer.wait_closed()
+
+asyncio.run(redis_client())
+</code></pre>
+<p>Let's run it.</p>
+<pre><code>python3 my-redis-client.py
+Send: 'ping\n'
+Received: '+PONG\r\n'
+Close the connection
+</code></pre>
+<p>It worked!</p>
+<p>Okay, now lets go further. There are some commands in redis; which just responds
+to you and closes the connection; and there are others; keeps the stream alive.</p>
+<p>What are they?</p>
+<pre><code>INCR my-key
+1
+
+INCR my-key
+2
+
+INCR my-key
+3
+</code></pre>
+<p>Each time you call the INCR method; redis increases the number that you specified
+with your key and responds with the current value and you forget about the rest.</p>
+<pre><code>subsribe messages
+... some time have passed
+hello
+... some time have passed
+... some time have passed
+... some time have passed
+hello
+</code></pre>
+<p>Redis support pub-sub which is a functionality that allows you to listen to
+a specific key; and prompts you when there is a message left to that specific
+key. Lets create another connection with telnet and play with it.</p>
+<pre><code>$ telnet 127.0.0.1 6379
+Connected to localhost.
+Escape character is '^]'.
+publish messages hey
+</code></pre>
+<p>You will notice that in the connection when you subscribe, you will
+receive the message "hey" which is sent by the other connection.</p>
+<pre><code>subsribe messages
+... some time have passed
+hello
+... some time have passed
+... some time have passed
+... some time have passed
+hello
+... some time have passed
+hey &lt;- WATCH IT OUT :)
+</code></pre>
+<p>This functionaliy allows us to create</p>
+<ul>
+<li>Chat servers</li>
+<li>Message queues</li>
+<li>Many more</li>
+</ul>
+<p>As you can see with just a simple set of commands we were able to interact
+with redis and get our job done.</p>
+<p>Here's how I connect to redis-pubsub with AsyncIO.</p>
+<pre><code class="language-python">async def pubsub():
+    reader, writer = await asyncio.open_connection(
+        '127.0.0.1', 6379)
+    message = 'subscribe messages\n'
+    print(f'Send: {message!r}')
+    writer.write(message.encode())
+    await writer.drain()
+
+    while True:
+        data = await reader.read(100)
+        print(f'Received: {data.decode()!r}')
+</code></pre>
+<p>Lets run the script.</p>
+<pre><code>$ python message-queue.py
+Send: 'subscribe messages\n'
+Received: '*3\r\n$9\r\nsubscribe\r\n$8\r\nmessages\r\n:1\r\n'
+Received: '*3\r\n$7\r\nmessage\r\n$8\r\nmessages\r\n$3\r\nhey\r\n'
+</code></pre>
+<p>Lets send a message to "messages" channel.</p>
+<pre><code>$ telnet 127.0.0.1 6379
+Connected to localhost.
+Escape character is '^]'.
+publish messages &quot;can you hear me&quot;
+</code></pre>
+<p>Watch it out!</p>
+<pre><code>$ python message-queue.py
+Send: 'subscribe messages\n'
+Received: '*3\r\n$9\r\nsubscribe\r\n$8\r\nmessages\r\n:1\r\n'
+Received: '*3\r\n$7\r\nmessage\r\n$8\r\nmessages\r\n$3\r\nhey\r\n'
+Received: '*3\r\n$7\r\nmessage\r\n$8\r\nmessages\r\n$15\r\ncan you hear me\r\n'
+</code></pre>
+<p>We have received the message :)</p>
+<p>Happy hacking!</p>
+    </article>
+    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="7" tabindex="-17">
+      <h3 aria-label="Title"><a role="link" href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a></h3>
+      <time>30 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I am not going to create yet another http server for asyncio, rather,
+I will share some code pieces that I can create simple http endpoints
+for AsyncIO.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="7" tabindex="-17">
+      <h3 aria-label="Title"><a role="link" href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO's event loop</a></h3>
+      <time>29 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>AsyncIO is a built-in python library to write concurrent
+code with a new language keywords "async" and "await'. AsyncIO landed
+into python in 3.3 version. Since the Python2 is no longer supported,
+AsyncIO will be our swiss army knife to handle:</p></div>
+    </article>
+    </div>
+  </div>
+  
+</div>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

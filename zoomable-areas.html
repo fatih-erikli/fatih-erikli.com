@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Creating zoomable areas with DOMMatrix objects</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?0fc389b50f9043e2a9096f37b8e0670d" />
+    <link rel="stylesheet" href="styles.css?0fc389b50f9043e2a9096f37b8e0670d" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false">
+  <div role="heading" class="sidebar">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="220" height="220" alt="Logo" />
+    <h1>Fatih Erikli</h1>
+  </a>
+  <p role="doc-subtitle">Full-stack software engineer, currently works for <a rel="nofollow" target="_blank" href="https://graphcommons.com">Graph Commons</a>.</p>
+  <div role="navigation" aria-label="Main">
+    <a rel="nofollow" href="https://github.com/fatih-erikli" target="_blank"><img src="./github-icon.png" alt="octopus cat" />fatih-erikli</a>
+    <a rel="nofollow" href="https://twitter.com/fatiherikliuniq" target="_blank"><img src="./twitter-icon.svg" alt="twitter bird" />fatiherikliuniq</a>
+  </div>  
+  <div area-label="Projects" class="projects">
+    <h5>Projects</h5>
+    <a href="https://fatih-erikli.github.io/time-tracker">
+      <span style="background: rgb(40, 40, 255)"></span>
+      Time tracker</a>
+      <p>Time tracker for freelancers and contractors.</p>
+    <a href="https://fatih-erikli.github.io/dark-rectangles">
+      <span style="background: rgb(40, 40, 40)"></span>
+      Dark rectangles</a>
+      <p>Figma-style zoomable and panneble area implemented in React.</p>
+
+    <a href="https://graphcommons.github.io/color-picker-with-presets">
+      <span style="background: linear-gradient(to right, blueviolet, fuchsia);"></span>
+      Color Picker</a>
+      <p>Pure React color picker with web safe colors as a preset and last used colors.</p>
+  </div>
+</div>
+
+  <div aria-label="blog detail" role="article" tabindex="-1">
+    <h3 role="heading">Creating zoomable areas with DOMMatrix objects</h3>
+    <article role="document">
+      <time>18 Dec, 2021.</time>
+      <p>The DOMMatrix interface provides us an abstraction to work with
+rotation and translation of DOM or SVG elements.</p>
+<figure style="max-width: 600px;">
+<img style="width: 100%;" src="example-zoomable.png">
+<figcaption>An SVG document</figcaption>
+</figure>
+
+<p>In order to show an information or a visualization which is not fitting
+to the default resolutions, such as 1440x900 or 1280x720,
+we need to provide an interface to the user to update the zoom
+level of the content, and pan the visible region of zoomed area.
+We can do that in both SVG content and HTML content.</p>
+<p>DOMMatrix is an abstract interface for 2d and 3d operations.
+In web, in most cases, we will use DOMMatrix for 2d operations.
+Let's go with an example. We will create a zoomable SVG document
+and a mirror version of it with some HTML controls.</p>
+<h3>OnWheel event</h3>
+<p>In modern browsers, we can listen to the zoom gesture of user
+(for example pinch gesture in OSX) by using the onwheel event. Let's start
+by creating an SVG document inside HTML first.</p>
+<pre><code class="language-javascript">function App() {
+  const onWheel = (event: SyntheticEvent) =&gt; {
+    console.log(event);
+  }
+  return (
+    &lt;div className=&quot;App&quot;&gt;
+      &lt;svg onWheel={onWheel} width={300} height={300}&gt;
+      &lt;rect x={0} y={0} width={100} height={100} fill={'purple'} /&gt;
+      &lt;rect x={100} y={0} width={100} height={100} fill={'magenta'} /&gt;
+      &lt;rect x={200} y={0} width={100} height={100} fill={'cyan'} /&gt;
+
+      &lt;rect x={0} y={200} width={100} height={100} fill={'cyan'} /&gt;
+      &lt;rect x={100} y={200} width={100} height={100} fill={'magenta'} /&gt;
+      &lt;rect x={200} y={200} width={100} height={100} fill={'purple'} /&gt;
+      // ....
+</code></pre>
+<p>And also we can subscribe to onWheel event such as the example above.</p>
+<p>In OSX, Pinch gesture is fired by ctrlKey pressed in onWheel event. It
+may sound a bit strange, but it is practical if you think about the computers
+which doesn't have a trackpad.</p>
+<pre><code>const onWheel = (event: SyntheticEvent) =&gt; {
+  if (event.ctrlKey) {
+    event.preventDefault();
+  }
+}
+</code></pre>
+<p>We disable the default zoom behavior if the ctrl key is pressed :) It works
+for OSX.</p>
+<p>In order to transform (scale, translate-move, or rotate), we need to group our SVG elements with <code>g</code> element.</p>
+<pre><code class="language-javascript">function App() {
+  const onWheel = (event: SyntheticEvent) =&gt; {
+    console.log(event);
+  }
+  return (
+    &lt;div className=&quot;App&quot;&gt;
+      &lt;svg ref={svgRef} onWheel={onWheel} width={300} height={300}&gt;
+      &lt;g ref={transformableGroupRef}&gt;
+        &lt;rect x={0} y={0} width={100} height={100} fill={'purple'} /&gt;
+        &lt;rect x={100} y={0} width={100} height={100} fill={'magenta'} /&gt;
+        &lt;rect x={200} y={0} width={100} height={100} fill={'cyan'} /&gt;
+
+        &lt;rect x={0} y={200} width={100} height={100} fill={'cyan'} /&gt;
+        &lt;rect x={100} y={200} width={100} height={100} fill={'magenta'} /&gt;
+        &lt;rect x={200} y={200} width={100} height={100} fill={'purple'} /&gt;
+        // ....
+</code></pre>
+<p>And also I assigned them a reference to access them in my event listeners.
+After that point, things are getting a bit complicated.</p>
+<p>The coordinate system in DOM (HTML) and SVG differs a little bit. The coordinate
+system in SVG is inverted, and also the position of the visible elements are changing
+when you move them or scale.</p>
+<pre><code class="language-javascript">
+function convertScreenCoordsToSvgCoords(
+  x: number,
+  y: number,
+  svgElement: SVGSVGElement,
+  groupElement: SVGGraphicsElement
+) {
+  var point = svgElement.createSVGPoint();
+  point.x = x;
+  point.y = y;
+  point = point.matrixTransform(groupElement.getScreenCTM()?.inverse());
+  return {
+    x: point.x,
+    y: point.y,
+  };
+}
+</code></pre>
+<p>We can use a function like that in order to can translate those coordinates to a common which we can operate in HTML.
+Basically the SVG coordinates are still the same when you scale the contents, but the positions in the
+group elements are different. We are going to reach to the
+coordinates in SVG element, and transform them to the group element's matrix.</p>
+<p>We can implement our onWheel function now.</p>
+<pre><code class="language-javascript">const SCALE_FACTOR = 0.03;
+// onWheel event sends numbers like 2,5,3.
+// when you scale an element with 2, it becomes twice bigger than original.
+// so we need to divide them with something called a scale factor.
+// this is something you need to try and find. 0.03 seemed reasonable to me.
+
+let groupTransform: DOMMatrix;
+// I use typescript and defined the groupTransform with DOMMatrix object.
+// let's keep it as global for now. We can think about it later.
+
+const onWheel = (event: SyntheticEvent) =&gt; {
+  const scale = event.deltaY * SCALE_FACTOR * -1;
+  var coords = convertScreenCoordsToSvgCoords(
+    event.clientX,
+    event.clientY,
+    svgRef.current,
+    transformableGroupRef.current
+  );
+
+  groupTransform = groupTransform.translate(coords.x, coords.y);
+  groupTransform = groupTransform.scale(1 + scale);
+  groupTransform = groupTransform.translate(-coords.x, -coords.y);
+
+  const transform = svgRef.current.createSVGTransform();
+  transform.setMatrix(groupTransform);
+};
+</code></pre>
+<p>Almost everything is done. We created a matrix that we can use
+to zoom elements in an SVG document. There's one thing
+needs to be done left. We need to assign that transformation
+matrix to the group element.</p>
+<p>In procedural Javascript, we set the <a target="_blank" rel="nofollow" href="https://svgwg.org/svg2-draft/types.html#__svg__SVGAnimatedString__baseVal">baseVal</a> value of element,
+which stores the coordinates before any any animation is applied. But
+we are using react, we need to do it in a declarative way.</p>
+<p>We need to define a state in our function component.</p>
+<pre><code class="language-javascript">const [transformationMatrix, setTransformationMatrix] = useState&lt;DOMMatrix&gt;(new DOMMatrix());
+// ...
+const onWheel = (event: SyntheticEvent) =&gt; {
+  // ...
+  setTransformationMatrix(transform.matrix);
+};
+</code></pre>
+<p>And populate the transformation matrix in onWheel event handler.</p>
+<pre><code class="language-javascript">&lt;g
+  transform={`
+    matrix(
+      ${transformationMatrix.a},
+      ${transformationMatrix.b},
+      ${transformationMatrix.c},
+      ${transformationMatrix.d},
+      ${transformationMatrix.e},
+      ${transformationMatrix.f}
+    )
+  `}
+  ref={transformableGroupRef}
+  &gt;
+  ...
+</code></pre>
+<p>Also we can set the transform attribute of group element by destructuring our matrix in that way.</p>
+<p>This is all. The DOMMatrix is pure mathematical array operations. When you initialize a new one,
+you create it with the browser's norms (actual zoom). So, if you have a button like <code>Reset Zoom</code>, you can
+set the <code>transformationMatrix</code> with a new DOM Matrix.</p>
+<pre><code class="language-javascript">&lt;button onClick={event =&gt; setTransformationMatrix(new DOMMatrix());}&gt;
+  Reset zoom
+  ....
+</code></pre>
+<p>I uploaded the actual version to github as an open-source project.</p>
+<p><img src="https://raw.githubusercontent.com/fatih-erikli/dark-rectangles/main/zoomable.gif" /></p>
+<p>Here's the Github URL:</p>
+<p><a href="https://github.com/fatih-erikli/dark-rectangles/">https://github.com/fatih-erikli/dark-rectangles/</a></p>
+<p>Happy hacking! :)</p>
+    </article>
+    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="1" tabindex="-14">
+      <h3 aria-label="Title"><a role="link" href="mental-health-error-progress.html">MentalHealthError: Two months passed since the treatment has started</a></h3>
+      <time>13 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>My psychiatrist doubled the 
+dose of my drug in the second month. <s>I have not been diagnosed with a psychological disorder yet.</s> 
+I am just guessing, I was burned-out for the second time in my life.
+As I have observed and been told by my social circle, it is almost an occupational condition
+for a software engineer to be burned out once in a 5 years.
+<strong>Edit: I have been diagnosed with Generalized anxiety disorder.</strong></p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="1" tabindex="-14">
+      <h3 aria-label="Title"><a role="link" href="the-role-of-cryptology-in-web-applications.html">The role of cryptology in web applications</a></h3>
+      <time>11 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Cryptology and cryptography is an interdisciplinary field of study
+in computer sciences and math. Cryptography in computer 
+programming, covers the techniques of secure communication in
+computer systems and internet. Secure communication is not something
+nice to have, but it is something must to have in our times. That's why
+cryptography is an inseparable field of study in computer sciences.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="1" tabindex="-14">
+      <h3 aria-label="Title"><a role="link" href="test-driven-approach-to-worker-based-applications-development.html">Test-driven approach to worker-based web applications development</a></h3>
+      <time>08 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Test driven development is the way of developing a software based
+on the tests you have initially written. In traditional way of 
+development, we create the application, test them manually,
+and create tests or ignore them. In test-driven approach,
+you create the tests and run them first, see them failing,
+and start implementing the application by seeing the
+tests results are passing one by one incrementally.</p></div>
+    </article>
+    </div>
+  </div>
+  
+</div>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

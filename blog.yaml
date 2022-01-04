@@ -1,0 +1,44 @@
+posts:
+  - title: "Revisioning Application state in React"
+    file: use-revisioned-state.md
+    date: 04 Dec, 2022.
+
+  - title: "Pattern matching in Typescript"
+    file: pattern-matching-in-typescript.md
+    date: 25 Dec, 2021.
+
+  # - title: "MentalHealthError: Two months passed since the treatment has started"
+  #   file: mental-health-error-progress.md
+  #   date: 13 Dec, 2021
+
+  - title: The role of cryptology in web applications
+    file: the-role-of-cryptology-in-web-applications.md
+    date: 11 Dec, 2021
+
+  - title: "Test-driven approach to worker-based web applications development"
+    file: test-driven-approach-to-worker-based-applications-development.md
+    date: 08 Dec, 2021
+
+  - title: "My security concerns on server-side rendered web applications"
+    file: security-concerns-on-server-side-rendered-web-applications.md
+    date: 06 Dec, 2021
+
+  - title: "IndexedDB: High-performance transactional database in client side"
+    file: indexeddb-transactional-database-in-client-side.md
+    date: 04 Dev, 2021
+
+  - title: Creating a user authentication with Cloudflare Workers
+    file: creating-user-authentication-in-cloudflare-workers.md
+    date: 02 Dev, 2021
+
+  - title: "You don't actually need a AsyncIO version of a database driver"
+    file: asyncio-streams.md
+    date: 30 Nov, 2021
+
+  - title: "Whirlwind: HTTP server boilerplate for AsyncIO"
+    file: whirlwind.md
+    date: 30 Nov, 2021
+
+  - title: Creating a web-server in AsyncIO's event loop
+    file: creating-a-web-server-in-asyncio.md
+    date: 29 Nov, 2021

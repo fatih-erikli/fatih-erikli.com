@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Pattern matching in Typescript</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?62d5c35cd5ef470ab2d5c349a01c6b2e" />
+    <link rel="stylesheet" href="styles.css?62d5c35cd5ef470ab2d5c349a01c6b2e" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false">
+  <div role="heading" class="sidebar">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="220" height="220" alt="Logo" />
+    <h1>Fatih Erikli</h1>
+  </a>
+  <p role="doc-subtitle">Full-stack software engineer, currently works for <a rel="nofollow" target="_blank" href="https://graphcommons.com">Graph Commons</a>.</p>
+  <div role="navigation" aria-label="Main">
+    <a rel="nofollow" href="https://github.com/fatih-erikli" target="_blank"><img src="./github-icon.png" alt="octopus cat" />fatih-erikli</a>
+    <a rel="nofollow" href="https://twitter.com/fatiherikliuniq" target="_blank"><img src="./twitter-icon.svg" alt="twitter bird" />fatiherikliuniq</a>
+  </div>  
+  <div area-label="Projects" class="projects">
+    <h5>Projects</h5>
+    <a href="https://fatih-erikli.github.io/time-tracker">
+      <span style="background: rgb(40, 40, 255)"></span>
+      Time tracker</a>
+      <p>Time tracker for freelancers and contractors.</p>
+    <a href="https://fatih-erikli.github.io/dark-rectangles">
+      <span style="background: rgb(40, 40, 40)"></span>
+      Dark rectangles</a>
+      <p>Figma-style zoomable and panneble area implemented in React.</p>
+
+    <a href="https://fatih-erikli.github.io/color-picker">
+      <span style="background: linear-gradient(to right, blueviolet, fuchsia);"></span>
+      Color Picker</a>
+      <p>Pure React color picker with web safe colors as a preset and last used colors.</p>
+  </div>
+</div>
+
+  <div aria-label="blog detail" role="article" tabindex="-1">
+    <h3 role="heading">Pattern matching in Typescript</h3>
+    <article role="document">
+      <time>25 Dec, 2021.</time>
+      <p>Pattern matching is a functional programming concept
+to handle conditional code branches based on the
+structured the date you are processing 
+in a declarative way. Pure functional languages such as
+Haskell and Erlang supports pattern matching and
+most of the times it is the only way of writing a
+conditional code. We don't have pattern matching
+in Javascript or Python, but with some syntactic sugar
+and precompilers such as Typescript, we can use
+pattern matching.</p>
+<p>I found a library called "ts-pattern". I tried, and it
+works like a charm. By desing, pattern matching runs
+on run-time, but it is also taking some advantages
+of Typescript to check your types before compiling them.</p>
+<p>It also warns you when you have a missing case
+in your pattern matching structure and I think it is
+super useful when you have to deal with complex
+user interactions and multiple application modes.</p>
+<p>I am going to share a code piece and I think it will worth
+a thousand words to explain it.</p>
+<pre><code class="language-javascript">useEffect(() =&gt;
+    eventEmitter.addEventListener(&quot;all&quot;, (event) =&gt; {
+      match&lt;[EventName, EventTarget, DrawingMode]&gt;([event.name, event.target, canvasState.mode])
+        .with([&quot;click&quot;, &quot;canvas-area&quot;, &quot;move&quot;], () =&gt; {
+          setCanvasState(&quot;mode&quot;, &quot;start&quot;);
+        })  
+        .with([&quot;click&quot;, &quot;draw-button&quot;, &quot;move&quot;], () =&gt; {
+          setCanvasState(&quot;mode&quot;, &quot;start&quot;);
+        })
+        .with([&quot;click&quot;, &quot;move-button&quot;, &quot;start&quot;], () =&gt; {
+          setCanvasState(&quot;mode&quot;, &quot;move&quot;);
+        })
+        .with([&quot;click&quot;, &quot;canvas-area&quot;, &quot;start&quot;], () =&gt; {
+          console.log(&quot;create a shape&quot;)
+        })
+        .with([&quot;mousedown&quot;, __, __], (match) =&gt; {})
+        .with([&quot;mouseup&quot;, __, __], (match) =&gt; {})
+        .with([&quot;canvasmove&quot;, __, __], (match) =&gt; {})
+        .with([__, __, __], (match) =&gt; {
+          console.log('no matching pattern', match);
+        })
+        .run();
+    })
+  );
+</code></pre>
+<p>This is a useEffect example in React. We listen to all the
+user events, combining them with the related part of the application,
+and the application mode (it is very contextual for a vectoral drawing library, but I think it is understandable)
+and creating some conditional branches.</p>
+<p>We also use <code>__</code> whildcard pattern to fulfill missing parts of our patterns.</p>
+<p>Here's the github repository of <code>ts-pattern</code>.</p>
+<p><a target="_blank" rel="nofollow" href="https://github.com/gvergnaud/ts-pattern">https://github.com/gvergnaud/ts-pattern</a></p>
+<h3>Edit: I implemented a minimal pattern matching library for Typescript</h3>
+<p>I noticed that the runtime was a bit expensive to match all the cases with ts-pattern
+and I worked a little bit to make it faster and I managed to optimize.</p>
+<p>I published the library on github and npm called "pattern-select":</p>
+<p><a href="https://github.com/fatih-erikli/pattern-select">pattern-select</a></p>
+<h2>Comparison with ts-pattern</h2>
+<pre><code class="language-typescript">console.time('ts-pattern')
+const result = match&lt;Action&gt;(uiAction)
+.with({target: &quot;button-2&quot;, &quot;event&quot;: &quot;mousedown&quot;, timestamp: __}, ({ timestamp }) =&gt; timestamp)
+.with({target: &quot;button-1&quot;, &quot;event&quot;: &quot;mousedown&quot;, timestamp: __}, ({ timestamp }) =&gt; timestamp)
+.with({target: &quot;button-1&quot;, &quot;event&quot;: &quot;test&quot;, timestamp: __}, ({ timestamp }) =&gt; timestamp)
+.with({target: &quot;button-1&quot;, &quot;event&quot;: &quot;mousedown&quot;, timestamp: __}, ({ timestamp }) =&gt; timestamp)
+.run();
+console.log('result', result);
+console.timeEnd('ts-pattern'); // 6ms
+
+console.time('pattern-select')
+const result2 = pattern&lt;Action&gt;(uiAction)
+.case({target: &quot;button-2&quot;, &quot;event&quot;: &quot;mousedown&quot;, timestamp: placeholder}, ({ timestamp }: any) =&gt; timestamp)
+.case({target: &quot;button-1&quot;, &quot;event&quot;: &quot;mousedown&quot;, timestamp: placeholder}, ({ timestamp }: any) =&gt; timestamp)
+.case({target: &quot;button-1&quot;, &quot;event&quot;: &quot;test&quot;, timestamp: placeholder}, ({ timestamp }: any) =&gt; timestamp)
+.case({target: &quot;button-1&quot;, &quot;event&quot;: &quot;mousedown&quot;, timestamp: placeholder}, ({ timestamp }: any) =&gt; timestamp)
+.match()
+console.log('result', result2);
+console.timeEnd('pattern-select'); // 1ms
+</code></pre>
+<p>That's it.
+Happy hacking!</p>
+    </article>
+    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="1" tabindex="-11">
+      <h3 aria-label="Title"><a role="link" href="the-role-of-cryptology-in-web-applications.html">The role of cryptology in web applications</a></h3>
+      <time>11 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Cryptology and cryptography is an interdisciplinary field of study
+in computer sciences and math. Cryptography in computer 
+programming, covers the techniques of secure communication in
+computer systems and internet. Secure communication is not something
+nice to have, but it is something must to have in our times. That's why
+cryptography is an inseparable field of study in computer sciences.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="1" tabindex="-11">
+      <h3 aria-label="Title"><a role="link" href="test-driven-approach-to-worker-based-applications-development.html">Test-driven approach to worker-based web applications development</a></h3>
+      <time>08 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Test driven development is the way of developing a software based
+on the tests you have initially written. In traditional way of 
+development, we create the application, test them manually,
+and create tests or ignore them. In test-driven approach,
+you create the tests and run them first, see them failing,
+and start implementing the application by seeing the
+tests results are passing one by one incrementally.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="1" tabindex="-11">
+      <h3 aria-label="Title"><a role="link" href="security-concerns-on-server-side-rendered-web-applications.html">My security concerns on server-side rendered web applications</a></h3>
+      <time>06 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In the current state of web development, the line between backend and frontend
+development has become almost invisible. The reason of that is we started to use
+Javascript for both client-side and server-side after NodeJS. And furthermore,
+we started to render the same components for both client-side and server side.</p></div>
+    </article>
+    </div>
+  </div>
+  
+</div>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

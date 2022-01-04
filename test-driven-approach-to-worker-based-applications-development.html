@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Test-driven approach to worker-based web applications development</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?0354dd4a2ca74731b2d2be55b8d1a2e9" />
+    <link rel="stylesheet" href="styles.css?0354dd4a2ca74731b2d2be55b8d1a2e9" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false">
+  <div role="heading" class="sidebar">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="220" height="220" alt="Logo" />
+    <h1>Fatih Erikli</h1>
+  </a>
+  <p role="doc-subtitle">Full-stack software engineer, currently works for <a rel="nofollow" target="_blank" href="https://graphcommons.com">Graph Commons</a>.</p>
+  <div role="navigation" aria-label="Main">
+    <a rel="nofollow" href="https://github.com/fatih-erikli" target="_blank"><img src="./github-icon.png" alt="octopus cat" />fatih-erikli</a>
+    <a rel="nofollow" href="https://twitter.com/fatiherikliuniq" target="_blank"><img src="./twitter-icon.svg" alt="twitter bird" />fatiherikliuniq</a>
+  </div>  
+  <div area-label="Projects" class="projects">
+    <h5>Projects</h5>
+    <a href="https://fatih-erikli.github.io/time-tracker">
+      <span style="background: rgb(40, 40, 255)"></span>
+      Time tracker</a>
+      <p>Time tracker for freelancers and contractors.</p>
+    <a href="https://fatih-erikli.github.io/dark-rectangles">
+      <span style="background: rgb(40, 40, 40)"></span>
+      Dark rectangles</a>
+      <p>Figma-style zoomable and panneble area implemented in React.</p>
+
+    <a href="https://fatih-erikli.github.io/color-picker">
+      <span style="background: linear-gradient(to right, blueviolet, fuchsia);"></span>
+      Color Picker</a>
+      <p>Pure React color picker with web safe colors as a preset and last used colors.</p>
+  </div>
+</div>
+
+  <div aria-label="blog detail" role="article" tabindex="-1">
+    <h3 role="heading">Test-driven approach to worker-based web applications development</h3>
+    <article role="document">
+      <time>08 Dec, 2021</time>
+      <p>Test driven development is the way of developing a software based
+on the tests you have initially written. In traditional way of 
+development, we create the application, test them manually,
+and create tests or ignore them. In test-driven approach,
+you create the tests and run them first, see them failing,
+and start implementing the application by seeing the
+tests results are passing one by one incrementally.</p>
+<p>I think worker-based web applications are perfect use cases
+for test driven software development. Because we are actually
+not creating a web-application, but we are developing functions
+which is taking a Request parameter which holds some information
+about the client (user) who is visiting your web page.</p>
+<p>In order to test worker-based web applications, we need to mock (mimic)
+a Request object. Basically the request is originally a plain text;
+so there is not so much things needs to be done, but of course it needs
+to be developed based on standards.</p>
+<p>In Cloudflare, I use <code>service-worker-mock</code>, which is an npm package
+developed by Cloudflare.</p>
+<p>It helps me to develop my application locally, without even
+running them with a local development server. So it speeds
+up the development process drastically.</p>
+<pre><code class="language-javascript">import { handleRequest } from '../src/server'
+import makeServiceWorkerEnv from 'service-worker-mock'
+
+declare var global: any
+
+describe('server side rendering', () =&gt; {
+  beforeEach(() =&gt; {
+    Object.assign(global, makeServiceWorkerEnv())
+    jest.resetModules()
+  })
+}
+</code></pre>
+<p>This is how the test case looks like. We mock the cloudflare
+workers with makeServiceWorkerEnv function.</p>
+<p>So I continue writing the tests.</p>
+<pre><code class="language-javascript">describe('server side rendering', () =&gt; {
+  beforeEach(() =&gt; {
+    Object.assign(global, makeServiceWorkerEnv())
+    jest.resetModules()
+  })
+
+  test('server side routing homepage', async () =&gt; {
+    const result = await handleRequest(new Request('/', { method: 'GET' }))
+    expect(result.status).toEqual(200)
+    const text = await result.text()
+    expect(text).toContain('&lt;div id=\&quot;root\&quot;&gt;&lt;div&gt;1&lt;/div&gt;&lt;/div&gt;')
+  })
+
+  test('server side routing about page', async () =&gt; {
+    const result = await handleRequest(new Request('/about', { method: 'GET' }))
+    expect(result.status).toEqual(200)
+    const text = await result.text()
+    expect(text).toContain('&lt;div id=\&quot;root\&quot;&gt;&lt;div&gt;about&lt;/div&gt;&lt;/div&gt;')
+  })
+})
+</code></pre>
+<p>I see them failing when I run the test suite by npm run test.</p>
+<pre><code>Test Suites: 1 failed, 1 total
+Tests:       2 failed, 2 total
+Snapshots:   0 total
+Time:        0.91 s, estimated 1 s
+Ran all test suites.
+</code></pre>
+<p>This is totally okay. We need to start with the failing
+test cases first. It's always good idea to start 
+thinking about the errors first. That's why test
+driven development provides us to more solid
+development environment.</p>
+<p>I implement my application.</p>
+<pre><code class="language-typescript">type ServerSideRenderingProps = {
+  pathname: string;
+};
+
+const ServerSideRendering = ({ pathname }: ServerSideRenderingProps) =&gt; {
+  const router = useUniversalRouter(pathname, getRoutes());
+  return (
+    &lt;html&gt;
+      &lt;head&gt;
+        &lt;title&gt;Server Rendered App&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body&gt;
+        &lt;div id=&quot;root&quot;&gt;
+        {router.match === 'home' &amp;&amp; (&lt;Home /&gt;)}
+        {router.match === 'about' &amp;&amp; (&lt;About /&gt;)}
+        &lt;/div&gt;
+        &lt;script src=&quot;client.js&quot; /&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}
+
+export async function handleRequest(request: Request): Promise&lt;Response&gt; {
+  const url = new URL(request.url)
+  const { pathname } = url
+  let html = ReactDOMServer.renderToString(
+    &lt;ServerSideRendering pathname={pathname} /&gt;
+  );
+  return new Response('&lt;!DOCTYPE html&gt;' + html, {
+    headers: {
+      &quot;content-type&quot;: &quot;text/html;charset=utf-8&quot;,
+    },
+  })
+}
+</code></pre>
+<p>And run the tests.</p>
+<pre><code> PASS  test/server.test.ts
+  server side rendering
+    ✓ server side routing homepage (4 ms)
+    ✓ server side routing about page (2 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        0.929 s, estimated 1 s
+Ran all test suites.
+</code></pre>
+<p>And they are working.</p>
+<p>Happy hacking!</p>
+    </article>
+    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="3" tabindex="-13">
+      <h3 aria-label="Title"><a role="link" href="security-concerns-on-server-side-rendered-web-applications.html">My security concerns on server-side rendered web applications</a></h3>
+      <time>06 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In the current state of web development, the line between backend and frontend
+development has become almost invisible. The reason of that is we started to use
+Javascript for both client-side and server-side after NodeJS. And furthermore,
+we started to render the same components for both client-side and server side.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="3" tabindex="-13">
+      <h3 aria-label="Title"><a role="link" href="indexeddb-transactional-database-in-client-side.html">IndexedDB: High-performance transactional database in client side</a></h3>
+      <time>04 Dev, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>As you may already know, HTTP is a stateless protocol. The communication
+between the client and server happens with some flags sent by client and server mutually.
+It means, we actually don't really know which user is authenticated. User
+is sending their session id via HTTP cookies and we (server) retrieve the related record
+from the database, and prepare the page response with the information of
+authenticated user.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="3" tabindex="-13">
+      <h3 aria-label="Title"><a role="link" href="creating-user-authentication-in-cloudflare-workers.html">Creating a user authentication with Cloudflare Workers</a></h3>
+      <time>02 Dev, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I have been trying serverless computing platforms in last years. Basically these platforms allows you
+to publish functions and execute them periodically, or by triggering it
+with an HTTP request.</p></div>
+    </article>
+    </div>
+  </div>
+  
+</div>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

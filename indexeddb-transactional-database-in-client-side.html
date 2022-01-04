@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>IndexedDB: High-performance transactional database in client side</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?9bd58b151817447a9f736e1583ef3701" />
+    <link rel="stylesheet" href="styles.css?9bd58b151817447a9f736e1583ef3701" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false">
+  <div role="heading" class="sidebar">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="220" height="220" alt="Logo" />
+    <h1>Fatih Erikli</h1>
+  </a>
+  <p role="doc-subtitle">Full-stack software engineer, currently works for <a rel="nofollow" target="_blank" href="https://graphcommons.com">Graph Commons</a>.</p>
+  <div role="navigation" aria-label="Main">
+    <a rel="nofollow" href="https://github.com/fatih-erikli" target="_blank"><img src="./github-icon.png" alt="octopus cat" />fatih-erikli</a>
+    <a rel="nofollow" href="https://twitter.com/fatiherikliuniq" target="_blank"><img src="./twitter-icon.svg" alt="twitter bird" />fatiherikliuniq</a>
+  </div>  
+  <div area-label="Projects" class="projects">
+    <h5>Projects</h5>
+    <a href="https://fatih-erikli.github.io/time-tracker">
+      <span style="background: rgb(40, 40, 255)"></span>
+      Time tracker</a>
+      <p>Time tracker for freelancers and contractors.</p>
+    <a href="https://fatih-erikli.github.io/dark-rectangles">
+      <span style="background: rgb(40, 40, 40)"></span>
+      Dark rectangles</a>
+      <p>Figma-style zoomable and panneble area implemented in React.</p>
+
+    <a href="https://fatih-erikli.github.io/color-picker">
+      <span style="background: linear-gradient(to right, blueviolet, fuchsia);"></span>
+      Color Picker</a>
+      <p>Pure React color picker with web safe colors as a preset and last used colors.</p>
+  </div>
+</div>
+
+  <div aria-label="blog detail" role="article" tabindex="-1">
+    <h3 role="heading">IndexedDB: High-performance transactional database in client side</h3>
+    <article role="document">
+      <time>04 Dev, 2021</time>
+      <p>As you may already know, HTTP is a stateless protocol. The communication
+between the client and server happens with some flags sent by client and server mutually.
+It means, we actually don't really know which user is authenticated. User
+is sending their session id via HTTP cookies and we (server) retrieve the related record
+from the database, and prepare the page response with the information of
+authenticated user.</p>
+<ul>
+<li><a href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO</a></li>
+<li><a href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a></li>
+</ul>
+<p>To persist a data (storing data in client-side), we have the following options currently.</p>
+<ul>
+<li>Cookies</li>
+<li>LocalStorage</li>
+<li>SessionStorage</li>
+<li>IndexedDB</li>
+</ul>
+<p>Each of them is important and has specific use cases in current state of web architecture.</p>
+<h3>Cookies</h3>
+<p>The oldest way to store a data in client side. We write the http cookies in server side
+with an HTTP HEADER (SET_COOKIES) and prepare the http response with them. The information is
+readable both in server side and client side.</p>
+<h3>LocalStorage and SessionStorage</h3>
+<p>Both of them has the same API to interact. The difference between them is, the information
+is deleted when you close the page in SessionStorage. The LocalStorage stores the data
+permanently until you delete them manually.</p>
+<p>It is a key-value store and stores only Strings.</p>
+<h3>IndexedDB</h3>
+<p>IndexebDB is a database as same as relational databases such as PostgreSQL and MySQL.</p>
+<p>It is a transactional database. You basically create a transaction in order to
+write something to the database, and commit the transaction after your operations.
+It makes it safer.</p>
+<p>It is a key-value store and stores all Javascript types such as:</p>
+<ul>
+<li>Arrays</li>
+<li>Objects</li>
+<li>Booleans</li>
+<li>Blob</li>
+<li>And others.</li>
+</ul>
+<h3>Lets go with an example</h3>
+<p>We are going to store a work-log entries. Lets imagine an application, the user is logging
+the time of their work on a specific task, and creating a report
+of them.</p>
+<p>IndexedDB has a low-level database API. You have to create the database
+instance when it is needed, and create a transaction when you manipulate your data,
+and specify the transactions mode manually. In my opinion, it is important to
+know all of that information when you deal with a database in order to keep
+the integrity of your data safe.</p>
+<pre><code class="language-javascript">const STORE_NAME_WORK_LOG = &quot;work-log&quot;;
+
+async function getIndexedDbInstance() {
+  return new Promise(async (resolve) =&gt; {
+    const DB_NAME = &quot;time-tracker&quot;;
+    const DB_VERSION = 1;
+    const indexedDbRequest = indexedDB.open(DB_NAME, DB_VERSION);
+
+    indexedDbRequest.onupgradeneeded = function () {
+      const documentObjectsStore = indexedDbRequest.result.createObjectStore(
+        STORE_NAME_WORK_LOG,
+        {
+          autoIncrement: false,
+        }
+      );
+      documentObjectsStore.createIndex(&quot;dateCreation&quot;, &quot;dateCreation&quot;, {
+        unique: false,
+      });
+    };
+    indexedDbRequest.onsuccess = function () {
+      resolve(indexedDbRequest.result);
+    };
+  });
+}
+</code></pre>
+<p>As you may noticed, we are able to version the database scheme. The number we indicate
+is not the version of the database (which is IndexedDB 3.0), but the schema that
+you are currently creating. When you update your database schema (such as indexes and
+store), you need to increase this number, and the client will request an upgrade
+to update their database schemas.</p>
+<p>The request of upgrade is an event that we can listen to. In case of an upgrade
+request, we are creating our database schema and indexes.</p>
+<pre><code class="language-javascript">function promisifyOnSuccess(request) {
+  // This is not so much needed, probably there is
+  // a better way to handle it, but I keep it for now :)
+  return new Promise((resolve) =&gt; {
+    request.onsuccess = (event) =&gt; {
+      resolve(event.target.result);
+    };
+  });
+}
+
+export async function fetchWorkLogEntries() {
+  const promise = new Promise(async (resolve) =&gt; {
+    const db = await getIndexedDbInstance();
+    const transaction = db.transaction(STORE_NAME_WORK_LOG, &quot;readonly&quot;);
+    const objectStore = transaction.objectStore(STORE_NAME_WORK_LOG);
+    const dateIndex = objectStore.index(&quot;dateCreation&quot;);
+    const keys = await promisifyOnSuccess(dateIndex.getAllKeys());
+    const promises = keys.map((key) =&gt;
+      promisifyOnSuccess(objectStore.get(key))
+    );
+    const results = await Promise.all(promises);
+    const resultsWithKeys = keys.map((key, index) =&gt; ({
+      key,
+      ...results[index],
+    }));
+    resolve(resultsWithKeys);
+  });
+
+  return promise;
+}
+</code></pre>
+<p>This is a ready-only query. We retrieve all the work log items with the index of
+<code>dateCreation</code>. This is how the indexes work. We created that index when the user
+is asked for an upgrade.</p>
+<p>The <code>dateCreation</code> index gives your data sorted by chronologically. Without
+this index, you will receive your records in a random order (of course it is not random,
+but you will not get them in a chronological order).</p>
+<p>This is why IndexedDB is called as IndexedDB. If you try to implement the same
+structure with LocalStorage, you will need to store them with basic array sorting
+function in Javascript, and obviously it is going to be crashed when you have
+more than thousand numbers of records.</p>
+<p>If you have noticed, I also keep the object's own ID inside the stored value. It
+eases the development when you list and print those records with ReactJS.</p>
+<pre><code class="language-javascript">export async function createWorkLogEntry(payload, uniqueId) {
+  const promise = new Promise(async (resolve) =&gt; {
+    const db = await getIndexedDbInstance();
+    const transaction = db.transaction(STORE_NAME_WORK_LOG, &quot;readwrite&quot;);
+    const objectStore = transaction.objectStore(STORE_NAME_WORK_LOG);
+    const key = uniqueId || generateUniqueID();
+    objectStore.put(
+      {
+        ...payload,
+        dateCreation: payload.dateCreation || new Date().toJSON(),
+        key,
+      },
+      key
+    ).onsuccess = resolve;
+  });
+  return promise;
+}
+</code></pre>
+<p>This is a readwrite transaction. I keep the unique IDs as UUID (Universally Unique Identifier)
+instead of an increasing number. If you don't specify a key, IndexedDB will increment
+a number as a PrimaryKey. I don't find it useful in real world applications, basically
+the user can increment the number and find other irrelevant records and confuse us :)</p>
+<p><a href="https://datatracker.ietf.org/doc/html/rfc4122">A Universally Unique Identifier (UUID) URN Namespace</a></p>
+<p>This is all. I wanted to share my experiences with IndexedDB. I created two different
+projects with IndexedDB and published them on github.</p>
+<ul>
+<li><a href="https://fatih-erikli.github.io/time-tracker">Time tracker</a></li>
+<li><a href="https://vectorial-project.github.io">Vectorial: In-browser vector graphics editor</a></li>
+</ul>
+<p>Happy hacking! :)</p>
+    </article>
+    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="5" tabindex="-15">
+      <h3 aria-label="Title"><a role="link" href="creating-user-authentication-in-cloudflare-workers.html">Creating a user authentication with Cloudflare Workers</a></h3>
+      <time>02 Dev, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I have been trying serverless computing platforms in last years. Basically these platforms allows you
+to publish functions and execute them periodically, or by triggering it
+with an HTTP request.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="5" tabindex="-15">
+      <h3 aria-label="Title"><a role="link" href="asyncio-streams.html">You don't actually need a AsyncIO version of a database driver</a></h3>
+      <time>30 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In my previous blog-post, I created a simple http server that calls a
+redis method; increases the specified key with request body
+in the redis store.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="5" tabindex="-15">
+      <h3 aria-label="Title"><a role="link" href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a></h3>
+      <time>30 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I am not going to create yet another http server for asyncio, rather,
+I will share some code pieces that I can create simple http endpoints
+for AsyncIO.</p></div>
+    </article>
+    </div>
+  </div>
+  
+</div>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

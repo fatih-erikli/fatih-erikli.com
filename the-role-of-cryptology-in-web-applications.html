@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>The role of cryptology in web applications</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?2bf5a10603ec438b9111c27af83f4be5" />
+    <link rel="stylesheet" href="styles.css?2bf5a10603ec438b9111c27af83f4be5" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false">
+  <div role="heading" class="sidebar">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="220" height="220" alt="Logo" />
+    <h1>Fatih Erikli</h1>
+  </a>
+  <p role="doc-subtitle">Full-stack software engineer, currently works for <a rel="nofollow" target="_blank" href="https://graphcommons.com">Graph Commons</a>.</p>
+  <div role="navigation" aria-label="Main">
+    <a rel="nofollow" href="https://github.com/fatih-erikli" target="_blank"><img src="./github-icon.png" alt="octopus cat" />fatih-erikli</a>
+    <a rel="nofollow" href="https://twitter.com/fatiherikliuniq" target="_blank"><img src="./twitter-icon.svg" alt="twitter bird" />fatiherikliuniq</a>
+  </div>  
+  <div area-label="Projects" class="projects">
+    <h5>Projects</h5>
+    <a href="https://fatih-erikli.github.io/time-tracker">
+      <span style="background: rgb(40, 40, 255)"></span>
+      Time tracker</a>
+      <p>Time tracker for freelancers and contractors.</p>
+    <a href="https://fatih-erikli.github.io/dark-rectangles">
+      <span style="background: rgb(40, 40, 40)"></span>
+      Dark rectangles</a>
+      <p>Figma-style zoomable and panneble area implemented in React.</p>
+
+    <a href="https://fatih-erikli.github.io/color-picker">
+      <span style="background: linear-gradient(to right, blueviolet, fuchsia);"></span>
+      Color Picker</a>
+      <p>Pure React color picker with web safe colors as a preset and last used colors.</p>
+  </div>
+</div>
+
+  <div aria-label="blog detail" role="article" tabindex="-1">
+    <h3 role="heading">The role of cryptology in web applications</h3>
+    <article role="document">
+      <time>11 Dec, 2021</time>
+      <p>Cryptology and cryptography is an interdisciplinary field of study
+in computer sciences and math. Cryptography in computer 
+programming, covers the techniques of secure communication in
+computer systems and internet. Secure communication is not something
+nice to have, but it is something must to have in our times. That's why
+cryptography is an inseparable field of study in computer sciences.</p>
+<p>For example:</p>
+<ul>
+<li>You have to provide an HTTPS connection to the users if you're serving a web-site in order to protect
+your users confidential information.</li>
+<li>You have to provide SHA1 checksums of the files that you have published in order
+to proof that the file which users are reaching is original as you have published.</li>
+<li>If you are going to store a password in your datases, you have to hash them with a strong hashing algorithm.</li>
+</ul>
+<p>Any many more, especially with the block-chain based emerging technologies.</p>
+<p>Also, not only for secure communication, but cryptology is something that we can use
+to improve our applications in user experience context. In this blog post, I will share
+how we can use cryptology in our web applications to provide a solid and consistent 
+user interfaces to the users.</p>
+<h3>Unique ID validation</h3>
+<p>Using a universally unique ID is a very common technique in web applications to 
+label a record. Creating a random string or a number is a very complicated process
+in computer systems. UUID provides us a framework to create a secure unique id for
+an entity.</p>
+<p>By using UUID, we can also validate the unique id's in our applications. It's a handy 
+practice, lets imagine an e-commerce application and we are developing the detail page
+of a product.</p>
+<p>The endpoint could be something like that:</p>
+<pre><code>https://my-ecommerce-platform.com/amazing-product
+</code></pre>
+<p>After a while, you will notice that this is not a good practice, because you can have
+a same name for a different product. Then you are going to change the URL as</p>
+<pre><code>https://my-ecommerce-platform.com/amazing-product-2
+</code></pre>
+<p>And after a while, yet another product name for a different product. You need to generate
+a slug (human-readable-url) part for the record, but it is not something that easy as well.</p>
+<p>It is going to be something like:</p>
+<pre><code>https://my-ecommerce-platform.com/amazing-product-(number-of-duplications)
+</code></pre>
+<p>I don't think number of duplications is a relavent information to be included in a URL and
+it has drawbacks in technical context.</p>
+<p>It needs to be like:</p>
+<pre><code>https://my-ecommerce-platform.com/08cc93fe-9093-4835-8515-ddc0741d0b51
+</code></pre>
+<p>Or if the name of the product is important in URL:</p>
+<pre><code>https://my-ecommerce-platform.com/amazing-product-08cc93fe-9093-4835-8515-ddc0741d0b51
+</code></pre>
+<p>That unique part of the URL is generated by using a Universally Unique Identifier. The same
+framework also provides us validation for a Unique ID. With that validation, we can
+check if the unique id is generated based on the rules of UUID or not.</p>
+<p>With that validation, we can distinquish the unique id's and not related information. For example</p>
+<pre><code>https://my-ecommerce-platform.com/08cc93fe-9093-4835-8515-ddc0741d0b51
+Responds with HTTP 200 OK
+
+https://my-ecommerce-platform.com/[not-a-valid-unique-id]
+Responds with HTTP 404 Not Found
+</code></pre>
+<p>We can validate the unique ID and respond 404 without hitting to the database. All the
+UUID modules comes with a validation function, such as <a href="https://www.npmjs.com/package/uuid">uuid</a>
+in NPM.</p>
+<h3>Application state synchronization</h3>
+<p>This is something is useful in frontend applications. In frontend application,
+we store the UI's state and synchronize them with the server in most of the cases.</p>
+<p>We always generate an hash for the UI state of the application. When there needs to
+be something synched with the server, we check the hash of user interface state
+with the remote hash, and if they are different, we proceed the synchronization,
+if not, we skip.</p>
+<pre><code class="language-javascript">
+export const hashApplicationState = (applicationState: ApplicationState) =&gt; {
+  return sha1(JSON.stringify(worklogEntries)).toString();
+};
+</code></pre>
+<p>We can use <code>sha1</code> algorithm for generating a hash of content.</p>
+<p>The hash will be looking like:</p>
+<pre><code>df00116ded57c6495b96b23f80f8aa55e98df3b3
+</code></pre>
+<p>We can use <a href="https://cryptojs.gitbook.io/docs/">crypto-js</a> library for the sha1 algorithm.</p>
+<p>Here's an example use case for that technique.</p>
+<figure>
+<img style="width: 100%" src="shareable-urls.png">
+<figcaption>Content synchronized by hashes.</figcaption>
+</figure>
+
+<p>In the figure above, the application state is synchronized with hashes and the date
+modification shows the time when the entry was updated. If you have noticed,
+not all the <code>Sync...</code> buttons are clickable. The button rendered as disabled
+if the hash of the record is the same with the current state of the application.</p>
+<p>Same technique is used for generating checksums of the files. This was just an 
+example. I think it's worth to invest some time in cryptography and practice by
+using in side-projects.</p>
+<p>Happy hacking!</p>
+    </article>
+    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="2" tabindex="-12">
+      <h3 aria-label="Title"><a role="link" href="test-driven-approach-to-worker-based-applications-development.html">Test-driven approach to worker-based web applications development</a></h3>
+      <time>08 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Test driven development is the way of developing a software based
+on the tests you have initially written. In traditional way of 
+development, we create the application, test them manually,
+and create tests or ignore them. In test-driven approach,
+you create the tests and run them first, see them failing,
+and start implementing the application by seeing the
+tests results are passing one by one incrementally.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="2" tabindex="-12">
+      <h3 aria-label="Title"><a role="link" href="security-concerns-on-server-side-rendered-web-applications.html">My security concerns on server-side rendered web applications</a></h3>
+      <time>06 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In the current state of web development, the line between backend and frontend
+development has become almost invisible. The reason of that is we started to use
+Javascript for both client-side and server-side after NodeJS. And furthermore,
+we started to render the same components for both client-side and server side.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="2" tabindex="-12">
+      <h3 aria-label="Title"><a role="link" href="indexeddb-transactional-database-in-client-side.html">IndexedDB: High-performance transactional database in client side</a></h3>
+      <time>04 Dev, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>As you may already know, HTTP is a stateless protocol. The communication
+between the client and server happens with some flags sent by client and server mutually.
+It means, we actually don't really know which user is authenticated. User
+is sending their session id via HTTP cookies and we (server) retrieve the related record
+from the database, and prepare the page response with the information of
+authenticated user.</p></div>
+    </article>
+    </div>
+  </div>
+  
+</div>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

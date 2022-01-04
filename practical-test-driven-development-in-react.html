@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Practical test driven development in React</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?739011f5435f473a806e1e9e6e20bb65" />
+    <link rel="stylesheet" href="styles.css?739011f5435f473a806e1e9e6e20bb65" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false">
+  <div role="heading" class="sidebar">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="220" height="220" alt="Logo" />
+    <h1>Fatih Erikli</h1>
+  </a>
+  <p role="doc-subtitle">Full-stack software engineer, currently works for <a rel="nofollow" target="_blank" href="https://graphcommons.com">Graph Commons</a>.</p>
+  <div role="navigation" aria-label="Main">
+    <a rel="nofollow" href="https://github.com/fatih-erikli" target="_blank"><img src="./github-icon.png" alt="octopus cat" />fatih-erikli</a>
+    <a rel="nofollow" href="https://twitter.com/fatiherikliuniq" target="_blank"><img src="./twitter-icon.svg" alt="twitter bird" />fatiherikliuniq</a>
+  </div>  
+  <div area-label="Projects" class="projects">
+    <h5>Projects</h5>
+    <a href="https://fatih-erikli.github.io/time-tracker">
+      <span style="background: rgb(40, 40, 255)"></span>
+      Time tracker</a>
+      <p>Time tracker for freelancers and contractors.</p>
+    <a href="https://fatih-erikli.github.io/dark-rectangles">
+      <span style="background: rgb(40, 40, 40)"></span>
+      Dark rectangles</a>
+      <p>Figma-style zoomable and panneble area implemented in React.</p>
+
+    <a href="https://graphcommons.github.io/color-picker-with-presets">
+      <span style="background: linear-gradient(to right, blueviolet, fuchsia);"></span>
+      Color Picker</a>
+      <p>Pure React color picker with web safe colors as a preset and last used colors.</p>
+  </div>
+</div>
+
+  <div aria-label="blog detail" role="article" tabindex="-1">
+    <h3 role="heading">Practical test driven development in React</h3>
+    <article role="document">
+      <time>24 Dec, 2021.</time>
+      <p>Previously I wrote a blog post about creating a worker-based http api
+with test-driven approach. In this blog post, I will share my experiences
+about going test-driven development for for building user interfaces.
+<strong>Edit: I was wrong. Dispatching all the events from a single place sounds
+good at the beginning but it makes the development cycle a total mess
+after awhile.</strong></p>
+<p>It is not so easy to go test-driven development for user interfaces for many factors.</p>
+<ul>
+<li>It is not easy to mock user interactions such as Mouse or Touch events</li>
+<li>It's hard to define the test cases and implement them</li>
+</ul>
+<p>For that reason I tried to implement the test cases in a semi-automated way.
+I like Test-driven approach not for the test cases, but the way of developing
+the applications by seeing them failing first and implementing it. I develop one
+of my side project with that approach and I find it very useful.</p>
+<p>I'm going to share some code pieces.</p>
+<h3>Testability</h3>
+<p><s>First of all, we need to abstract all the user interactions and events in the application
+in order to make them testable. This is not a mandatory step, you can also use <code>dispatchEvent</code>
+function to trigger an event, but I find creating a mediator layer between the user 
+and your application very useful. </p>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent" target="_blank" rel="nofollow">*dispatchEvent function on MozillaDev.</a></p>
+<p>We need an EventEmitter class. There's one in NodeJS library but you can't use it on your browser.
+You need a browserify or something like that, or you can do it in hand-written way and keep it
+integrated with your coding style.</p>
+<pre><code class="language-javascript">
+import { Event, EventCallback, EventListener, IEventEmitter } from &quot;../types/Events&quot;;
+import { neg } from &quot;../utils/functional&quot;;
+
+export class EventEmitter implements IEventEmitter {
+  listeners: [key: string, callback: (message: any) =&gt; void][];
+
+  constructor() {
+    this.listeners = [];
+  }
+
+  addEventListener(key: string, callback: (message: any) =&gt; void): (() =&gt; void) {
+    const eventKeys = key.split(String.fromCharCode(32));
+    for (const key of eventKeys) {
+      this.listeners.push([key, callback]);
+    }
+    return () =&gt; {
+      for (const key of eventKeys) {
+        this.removeEventListener(key, callback);
+      }
+    };
+  }
+
+  removeEventListener(key: string, callback: EventCallback): void {
+    const predicate = (listener: EventListener) =&gt; listener[0] === key &amp;&amp; listener[1] === callback;
+    const index = this.listeners.findIndex(predicate);
+    if (index !== -1) {
+      this.listeners = this.listeners.filter(neg(predicate));
+    }
+  }
+
+  emit(event: Event) {
+    for (const [listenerKey, listenerCallback] of this.listeners) {
+      if (listenerKey === event.name) {
+        listenerCallback(event);
+      }
+    }
+  }
+}
+
+</code></pre>
+<p>We are going to send the browser events via that class. I use React. I created
+a hook for that. I am going to share that one as well.</p>
+<pre><code class="language-javascript">import { useEffect } from &quot;react&quot;;
+import { EventEmitter } from &quot;../classes/EventEmitter&quot;;
+import { Vector } from &quot;../classes/Vector&quot;;
+import { EventHandler } from &quot;../types/Events&quot;;
+
+export const useMediatedEventsHandler = (eventEmitter?: EventEmitter) =&gt; {
+  useEffect(() =&gt; {
+    const interactionHandler = (type: string) =&gt; (event: any) =&gt; {
+      if (!eventEmitter) return;
+      switch (type) {
+        case &quot;click&quot;:
+        case &quot;mousedown&quot;:
+        case &quot;mouseup&quot;:
+        case &quot;mousemove&quot;:
+          eventEmitter.emit({
+            name: type,
+            position: Vector.fromEvent(event),
+            target: event.target.getAttribute(&quot;id&quot;),
+          });
+          break;
+        case &quot;touchstart&quot;:
+        case &quot;touchmove&quot;:
+          eventEmitter.emit({
+            name: type,
+            position: Vector.fromEvent(event.touches[0]),
+            target: event.target.getAttribute(&quot;id&quot;),
+          });
+          break;
+        case &quot;touchend&quot;:
+          eventEmitter.emit({
+            name: type,
+            position: Vector.Invisible(),
+            target: event.target.getAttribute(&quot;id&quot;),
+          });
+          break;
+      }
+    };
+
+    const events = [&quot;mousedown&quot;, &quot;mouseup&quot;, &quot;mousemove&quot;, &quot;touchstart&quot;, &quot;touchmove&quot;, &quot;touchend&quot;, &quot;click&quot;];
+    const handlers: EventHandler[] = [];
+
+    for (const event of events) {
+      const handler = interactionHandler(event);
+      document.body.addEventListener(event, handler);
+      handlers.push(handler);
+    }
+
+    return () =&gt; {
+      for (let index = 0; index &lt; events.length; index++) {
+        const eventName = events[index];
+        const handler = handlers[index];
+        document.body.removeEventListener(eventName, handler);
+      }
+    };
+  });
+};
+</code></pre>
+<p>As you can see in the hook function, I normalize the touch and mouse events
+and firing them in a payload that I struct.
+</s>
+Let's start defining our test cases.</p>
+<pre><code>const testCases: TestCase[] = [
+  [
+    &quot;should-start-with-empty-canvas&quot;,
+    (result: TestState, eventEmitter: EventEmitter) =&gt; (
+      &lt;Application
+        eventEmitter={eventEmitter}
+        title={`Test case: Start (${result})`}
+      /&gt;
+    ),
+    (document) =&gt; document.querySelectorAll(&quot;.Canvas&quot;).length === 1,
+  ],
+  [
+    &quot;move-button-should-be-disabled-first&quot;,
+    (result: TestState, eventEmitter: EventEmitter) =&gt; (
+      &lt;Application
+        eventEmitter={eventEmitter}
+        title={`Test case: Start (${result})`}
+      /&gt;
+    ),
+    (document) =&gt; document.querySelectorAll(&quot;#move-button:disabled&quot;).length === 1,
+  ],
+  [
+    &quot;should-switch-to-drawing-mode-when-click-draw&quot;,
+    (result: TestState, eventEmitter: EventEmitter) =&gt; (
+      &lt;Application
+        eventEmitter={eventEmitter}
+        title={`Test case: Start (${result})`}
+      /&gt;
+    ),
+    (document, eventEmitter) =&gt;
+      new Promise((resolve) =&gt; {
+        setTimeout(() =&gt; {
+          eventEmitter.emit({
+            name: &quot;click&quot;,
+            position: Vector.Invisible(),
+            target: &quot;draw-button&quot;,
+          });
+        }, 200);
+        setTimeout(() =&gt; {
+          resolve(!!document.querySelector(&quot;#draw-button:disabled&quot;));
+        }, 300);
+      }),
+  ],
+]
+</code></pre>
+<p>First two test cases are pretty simple. In the third test case,
+we have a complex user interaction for testing. This is
+pretty much the same as Jest's (testing framework) async
+test cases. We resolve a Promise when the test is running,
+and rejecting it if the test case is failing.</p>
+<p>The test case interface looks like that</p>
+<pre><code class="language-javascript">import { ReactElement } from &quot;react&quot;;
+import { IEventEmitter } from &quot;./Events&quot;;
+
+export type TestState = &quot;init&quot; | &quot;pending&quot; | &quot;failed&quot; | &quot;success&quot;;
+
+export type TestCase = [
+  name: string,
+  test: (result: TestState, eventEmitter: IEventEmitter) =&gt; ReactElement,
+  testCase: (document: HTMLDivElement, eventEmitter: IEventEmitter) =&gt; boolean | Promise&lt;boolean&gt;
+];
+</code></pre>
+<p>And here's how do I run them.</p>
+<pre><code class="language-javascript">function App() {
+  const router = useUniversalRouter(window.location.hash, [
+    [&quot;&quot;, &quot;application&quot;],
+    [&quot;/test-case/:testCase&quot;, &quot;test-case&quot;],
+  ]);
+
+  let testComponent: any;
+  let testRuntime: any;
+
+  if (router.match === &quot;test-case&quot;) {
+    const testCase = testCases.find(
+      (testCase) =&gt; testCase[0] === router.arguments[1]
+    );
+    if (testCase) {
+      testComponent = testCase[1];
+      testRuntime = testCase[2];
+    }
+  }
+
+  const [testResult, setTestResult] = useState&lt;TestState&gt;(&quot;init&quot;);
+
+  const eventEmitter = useRef&lt;EventEmitter&gt;();
+  const domRef = useRef&lt;HTMLDivElement&gt;(null);
+
+  useMediatedEventsHandler(eventEmitter.current);
+
+  useEffect(() =&gt; {
+    if (testResult === &quot;init&quot;) {
+      setTestResult(&quot;pending&quot;);
+    }
+
+    if (!eventEmitter.current) {
+      eventEmitter.current = new EventEmitter();
+    }
+
+    if (testRuntime &amp;&amp; domRef.current) {
+      const result = testRuntime(domRef.current, eventEmitter.current);
+
+      if (result instanceof Promise) {
+        result
+          .then((result) =&gt; {
+            setTestResult(result ? &quot;success&quot; : &quot;failed&quot;);
+          })
+          .catch(() =&gt; {
+            setTestResult(&quot;failed&quot;);
+          });
+      } else {
+        setTestResult(result ? &quot;success&quot; : &quot;failed&quot;);
+      }
+    }
+  });
+
+  return (
+    &lt;div className=&quot;Container&quot; ref={domRef}&gt;
+      {router.match === &quot;application&quot; &amp;&amp; eventEmitter.current &amp;&amp; (
+        &lt;Application eventEmitter={eventEmitter.current} title=&quot;Empty canvas&quot; /&gt;
+      )}
+      {router.match === &quot;test-case&quot; &amp;&amp;
+        eventEmitter.current &amp;&amp;
+        testComponent &amp;&amp;
+        testComponent(testResult, eventEmitter.current)}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>I use a simple router that I call <a target="_blank" href="https://github.com/fatih-erikli/universal-router">universal-router</a>. 
+Application starts as usual in home page. I have a different route for test cases
+and I check them by going in URL.</p>
+<pre><code>http://localhost:3001/#/test-case/move-button-should-be-disabled-first
+</code></pre>
+<p>This is all.
+Happy hacking!</p>
+    </article>
+    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="1" tabindex="-15">
+      <h3 aria-label="Title"><a role="link" href="zoomable-areas.html">Creating zoomable areas with DOMMatrix objects</a></h3>
+      <time>18 Dec, 2021.</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>The DOMMatrix interface provides us an abstraction to work with
+rotation and translation of DOM or SVG elements.</p>
+<figure style="max-width: 600px;">
+<img style="width: 100%;" src="example-zoomable.png">
+<figcaption>An SVG document</figcaption>
+</figure></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="1" tabindex="-15">
+      <h3 aria-label="Title"><a role="link" href="mental-health-error-progress.html">MentalHealthError: Two months passed since the treatment has started</a></h3>
+      <time>13 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>My psychiatrist doubled the 
+dose of my drug in the second month. <s>I have not been diagnosed with a psychological disorder yet.</s> 
+I am just guessing, I was burned-out for the second time in my life.
+As I have observed and been told by my social circle, it is almost an occupational condition
+for a software engineer to be burned out once in a 5 years.
+<strong>Edit: I have been diagnosed with Generalized anxiety disorder.</strong></p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="1" tabindex="-15">
+      <h3 aria-label="Title"><a role="link" href="the-role-of-cryptology-in-web-applications.html">The role of cryptology in web applications</a></h3>
+      <time>11 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Cryptology and cryptography is an interdisciplinary field of study
+in computer sciences and math. Cryptography in computer 
+programming, covers the techniques of secure communication in
+computer systems and internet. Secure communication is not something
+nice to have, but it is something must to have in our times. That's why
+cryptography is an inseparable field of study in computer sciences.</p></div>
+    </article>
+    </div>
+  </div>
+  
+</div>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

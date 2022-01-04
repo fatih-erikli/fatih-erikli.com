@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Revisioning Application state in React</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?8001f3738252497b8224c41b00aff229" />
+    <link rel="stylesheet" href="styles.css?8001f3738252497b8224c41b00aff229" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false">
+  <div role="heading" class="sidebar">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="220" height="220" alt="Logo" />
+    <h1>Fatih Erikli</h1>
+  </a>
+  <p role="doc-subtitle">Full-stack software engineer, currently works for <a rel="nofollow" target="_blank" href="https://graphcommons.com">Graph Commons</a>.</p>
+  <div role="navigation" aria-label="Main">
+    <a rel="nofollow" href="https://github.com/fatih-erikli" target="_blank"><img src="./github-icon.png" alt="octopus cat" />fatih-erikli</a>
+    <a rel="nofollow" href="https://twitter.com/fatiherikliuniq" target="_blank"><img src="./twitter-icon.svg" alt="twitter bird" />fatiherikliuniq</a>
+  </div>  
+  <div area-label="Projects" class="projects">
+    <h5>Projects</h5>
+    <a href="https://fatih-erikli.github.io/time-tracker">
+      <span style="background: rgb(40, 40, 255)"></span>
+      Time tracker</a>
+      <p>Time tracker for freelancers and contractors.</p>
+    <a href="https://fatih-erikli.github.io/dark-rectangles">
+      <span style="background: rgb(40, 40, 40)"></span>
+      Dark rectangles</a>
+      <p>Figma-style zoomable and panneble area implemented in React.</p>
+
+    <a href="https://fatih-erikli.github.io/color-picker">
+      <span style="background: linear-gradient(to right, blueviolet, fuchsia);"></span>
+      Color Picker</a>
+      <p>Pure React color picker with web safe colors as a preset and last used colors.</p>
+  </div>
+</div>
+
+  <div aria-label="blog detail" role="article" tabindex="-1">
+    <h3 role="heading">Revisioning Application state in React</h3>
+    <article role="document">
+      <time>04 Dec, 2022.</time>
+      <p>I tried to implement a revisionable state container for the UI state
+in order to provide a functionality to undo and redo an action on an application.
+There's a lot of ways to do that, I tried to implement the simplest one.
+I created a React hook that diffs the previous state and create a change log for it.
+That change log includes the added, updated, and removed keys of objects and arrays. I keep 
+the updated values with the previous one, so I can easily invert a change and revert it back. </p>
+<p>Here's how does the Change log type looks like.</p>
+<pre><code class="language-typescript">export type ChangeLog&lt;S&gt; = {
+  hasChange: boolean;
+  added: [path: string, value: any][];
+  removed: [path: string, value: any][];
+  changed: [path: string, value: any, previousValue?: any][];
+  updated?: [value: S, previousValue: S];
+};
+</code></pre>
+<p>The path of the changed value is separated by "." dot. <code>users.0.name</code> corresponds
+to the <code>users[0].name</code>.</p>
+<h3>Reverting the history</h3>
+<p>useRevisionedState hooks returns with the <code>history</code> collection and <code>revert</code> function.</p>
+<p>You can undo the last change by reverting the last change. It will create
+an another change log. If you want to revert the whole state, you need to reverse the history and pass
+it to the revert function.</p>
+<pre><code class="language-typescript">&lt;button
+  onClick={() =&gt;
+    const back = [...history];
+    back.reverse();
+    revert(back);
+  }
+&gt;
+  Revert all changes
+&lt;/button&gt;
+</code></pre>
+<h3>Implementing an Undo-Redo</h3>
+<p>If you want to do the redo, you can count the <code>undo</code> click of user,
+and slice the history with that number and pass it to the revert function.</p>
+<p>For each Undo and Redo action, you need to go to the history twice as 
+user clicked to the back or redo button, because <code>revert</code> function
+also writes to the history.</p>
+<pre><code class="language-typescript">
+import useRevisionedState from &quot;use-revisioned-state&quot;;
+import { useState } from &quot;react&quot;;
+
+function App() {
+  const [appState, setAppState, history, revert] = useRevisionedState({
+    users: [],
+    viewCount: 1,
+  });
+
+  const [clickedUndoCount, setClickedUndoCount] = useState(0);
+  const [clickedRedoCount, setClickedRedoCount] = useState(0);
+
+  return (
+    &lt;div className=&quot;App&quot;&gt;
+      {appState.viewCount}
+      &lt;br /&gt;
+      &lt;button
+        onClick={() =&gt; {
+          setClickedUndoCount(0);
+          setAppState({ ...appState, viewCount: appState.viewCount + 1 });
+        }}
+      &gt;
+        Increase
+      &lt;/button&gt;
+      &lt;button
+        onClick={() =&gt; {
+          setClickedUndoCount(clickedUndoCount + 1);
+          revert([
+            history[history.length - 1 - clickedUndoCount * 2],
+          ]);
+        }}
+      &gt;
+        Undo
+      &lt;/button&gt;
+      &lt;button
+        disabled={clickedUndoCount === 0 || clickedUndoCount === clickedRedoCount}
+        onClick={() =&gt; {
+          const back = history[history.length - 1 - clickedRedoCount * 2];
+          revert([back]);
+          setClickedRedoCount(clickedRedoCount + 1);
+        }}
+      &gt;
+        Redo
+      &lt;/button&gt;
+      &lt;button
+        onClick={() =&gt; {
+          setClickedRedoCount(0);
+          setClickedUndoCount(0);
+          const back = [...history];
+          back.reverse();
+          revert(back);
+        }}
+      &gt;
+        Revert all history
+      &lt;/button&gt;
+      &lt;br /&gt;
+      &lt;h3&gt;The change log&lt;/h3&gt;
+      {history.map((item) =&gt; (
+        &lt;pre&gt;{JSON.stringify(item, null, 4)}&lt;/pre&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>I published the hook in NPM. So you can just use it by installing the package "use-revisioned-state".</p>
+<p>Source codes are available on github.</p>
+<p><a href="https://github.com/fatih-erikli/use-revisioned-state">https://github.com/fatih-erikli/use-revisioned-state</a></p>
+<p>Happy hacking!</p>
+    </article>
+    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="0" tabindex="-10">
+      <h3 aria-label="Title"><a role="link" href="pattern-matching-in-typescript.html">Pattern matching in Typescript</a></h3>
+      <time>25 Dec, 2021.</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Pattern matching is a functional programming concept
+to handle conditional code branches based on the
+structured the date you are processing 
+in a declarative way. Pure functional languages such as
+Haskell and Erlang supports pattern matching and
+most of the times it is the only way of writing a
+conditional code. We don't have pattern matching
+in Javascript or Python, but with some syntactic sugar
+and precompilers such as Typescript, we can use
+pattern matching.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="0" tabindex="-10">
+      <h3 aria-label="Title"><a role="link" href="the-role-of-cryptology-in-web-applications.html">The role of cryptology in web applications</a></h3>
+      <time>11 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Cryptology and cryptography is an interdisciplinary field of study
+in computer sciences and math. Cryptography in computer 
+programming, covers the techniques of secure communication in
+computer systems and internet. Secure communication is not something
+nice to have, but it is something must to have in our times. That's why
+cryptography is an inseparable field of study in computer sciences.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="0" tabindex="-10">
+      <h3 aria-label="Title"><a role="link" href="test-driven-approach-to-worker-based-applications-development.html">Test-driven approach to worker-based web applications development</a></h3>
+      <time>08 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Test driven development is the way of developing a software based
+on the tests you have initially written. In traditional way of 
+development, we create the application, test them manually,
+and create tests or ignore them. In test-driven approach,
+you create the tests and run them first, see them failing,
+and start implementing the application by seeing the
+tests results are passing one by one incrementally.</p></div>
+    </article>
+    </div>
+  </div>
+  
+</div>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

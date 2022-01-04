@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Creating a user authentication with Cloudflare Workers</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?82f378a9dcd041669c5407e65a150d3d" />
+    <link rel="stylesheet" href="styles.css?82f378a9dcd041669c5407e65a150d3d" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false">
+  <div role="heading" class="sidebar">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="220" height="220" alt="Logo" />
+    <h1>Fatih Erikli</h1>
+  </a>
+  <p role="doc-subtitle">Full-stack software engineer, currently works for <a rel="nofollow" target="_blank" href="https://graphcommons.com">Graph Commons</a>.</p>
+  <div role="navigation" aria-label="Main">
+    <a rel="nofollow" href="https://github.com/fatih-erikli" target="_blank"><img src="./github-icon.png" alt="octopus cat" />fatih-erikli</a>
+    <a rel="nofollow" href="https://twitter.com/fatiherikliuniq" target="_blank"><img src="./twitter-icon.svg" alt="twitter bird" />fatiherikliuniq</a>
+  </div>  
+  <div area-label="Projects" class="projects">
+    <h5>Projects</h5>
+    <a href="https://fatih-erikli.github.io/time-tracker">
+      <span style="background: rgb(40, 40, 255)"></span>
+      Time tracker</a>
+      <p>Time tracker for freelancers and contractors.</p>
+    <a href="https://fatih-erikli.github.io/dark-rectangles">
+      <span style="background: rgb(40, 40, 40)"></span>
+      Dark rectangles</a>
+      <p>Figma-style zoomable and panneble area implemented in React.</p>
+
+    <a href="https://fatih-erikli.github.io/color-picker">
+      <span style="background: linear-gradient(to right, blueviolet, fuchsia);"></span>
+      Color Picker</a>
+      <p>Pure React color picker with web safe colors as a preset and last used colors.</p>
+  </div>
+</div>
+
+  <div aria-label="blog detail" role="article" tabindex="-1">
+    <h3 role="heading">Creating a user authentication with Cloudflare Workers</h3>
+    <article role="document">
+      <time>02 Dev, 2021</time>
+      <p>I have been trying serverless computing platforms in last years. Basically these platforms allows you
+to publish functions and execute them periodically, or by triggering it
+with an HTTP request.</p>
+<p>What I have tried so far:</p>
+<ul>
+<li>Amazon Lambda</li>
+<li>CloudFlare</li>
+<li>Serverless Framework (This is not a platform; but a framework that helps you to publish your architecture in
+ any platform)</li>
+</ul>
+<p>In this blog post I will share an example in CloudFlare. Why so?</p>
+<ul>
+<li>It's free</li>
+<li>I find the control panel more user and developer friendly</li>
+<li>They have a strong development community</li>
+</ul>
+<p>We will create a user authentication by using Cloudflare workers.</p>
+<p>Let's write down what we are going to build first. We will have three API endpoints.</p>
+<ul>
+<li>Registration</li>
+<li>Login</li>
+<li>Auth</li>
+</ul>
+<p>Registration and login is obvious. Auth endpoint will help us to authenticate user
+after the login process. We will store the <code>auth_token</code> provided us from the login or
+registration endpoint; and reuse them later (when the user refresh the page) to reauthenticate
+them again.</p>
+<h3>Persistance layer</h3>
+<p>First of all; we need to create a KV store; which is the database (or key-value store) of CloudFlare.</p>
+<p><a href="https://developers.cloudflare.com/workers/runtime-apis/kv">https://developers.cloudflare.com/workers/runtime-apis/kv</a></p>
+<p>You can create a KV store on cloudflare panel; or you can create it with <a href="https://developers.cloudflare.com/workers/cli-wrangler">wrangler</a>
+command line tool.</p>
+<p>Let's start with Registration endpoint.</p>
+<pre><code class="language-javascript">const sha256 = require('crypto-js/sha256')
+const cryptoJs = require('crypto-js')
+const jwt = require('jsonwebtoken')
+
+addEventListener('fetch', event =&gt; {
+  event.respondWith(handleRequest(event.request))
+})
+
+/**
+ * Simple authentication
+ * @param {Request} request
+ */
+async function handleRequest(request) {
+  const url = new URL(request.url)
+  const { pathname } = url
+  let response = { pathname }
+  switch (pathname) {
+    case '/register': {
+      const { username, password } = await request.json()
+
+      const user = await YOURKVSTORE.get(`user:${username}`)
+      if (user) {
+        response = {
+          error: 'User exists.',
+        }
+        break
+      }
+
+      const hashedPassword = sha256(password).toString(cryptoJs.enc.Hex)
+      // this is important
+      await YOURKVSTORE.put(`user:${username}`, hashedPassword)
+
+      const token = jwt.sign({ username }, TOKEN_KEY, {
+        expiresIn: '2h',
+      })
+
+      await YOURKVSTORE.put(`user_token:${token}`, username)
+
+      response = {
+        token,
+      }
+      break
+    }
+  }
+  return new Response(JSON.stringify(response), {
+    headers: {
+      'content-type': 'text/json'
+    },
+  })
+}
+</code></pre>
+<p>This is how an event-driven computing-ready function looks like in any platform.
+It is not so different than creating a controller in a http or Rest API framework;
+we have a request body and we create a response with that.</p>
+<h3>Most important thing</h3>
+<p>You cannot store the user's password in your database. You need to hash them with a
+hashing algorithm; such as sha256, and save them.</p>
+<p>When the user types username and password in login page; we need to hash the
+password provided by user; and match the hashed pairs, instead of raw password.
+This is very important.</p>
+<p>After the hashing algorithm; we use JWT (JSON Web Token) to create a token
+that we can authenticate the user without username and password.</p>
+<pre><code class="language-javascript">/**
+ * Simple authentication
+ * @param {Request} request
+ */
+async function handleRequest(request) {
+  const url = new URL(request.url)
+  const { pathname } = url
+  let response = { pathname }
+  switch (pathname) {
+    case '/login': {
+      const { username, password } = await request.json()
+      const hashedPassword = sha256(password).toString(cryptoJs.enc.Hex)
+      const storedPassword = await VECTORIAL.get(`user:${username}`)
+      if (storedPassword === hashedPassword) {
+        const token = jwt.sign({ username }, TOKEN_KEY, {
+          expiresIn: '2h',
+        })
+
+        await VECTORIAL.put(`user_token:${token}`, username)
+
+        response = {
+          token,
+        }
+      } else {
+        response = {
+          error: 'Invalid credientials.',
+        }
+      }
+      break
+    }
+    case '/auth': {
+      const { token } = await request.json()
+
+      let user
+
+      try {
+        user = jwt.verify(token, TOKEN_KEY)
+      } catch (e) {
+        response = {
+          error: 'Invalid signature.',
+        }
+      }
+
+      if (user) {
+        const username = await VECTORIAL.get(`user_token:${token}`);
+        if (!username) {
+          response = {
+            error: 'Invalid signature.',
+          }
+        } else {
+          response = {
+            username,
+          }
+        }
+      }
+      break
+    }
+    case '/register': {
+      const { username, password } = await request.json()
+
+      const user = await VECTORIAL.get(`user:${username}`)
+      if (user) {
+        response = {
+          error: 'User exists.',
+        }
+        break
+      }
+
+      const hashedPassword = sha256(password).toString(cryptoJs.enc.Hex)
+      await VECTORIAL.put(`user:${username}`, hashedPassword)
+
+      const token = jwt.sign({ username }, TOKEN_KEY, {
+        expiresIn: '2h',
+      })
+
+      await VECTORIAL.put(`user_token:${token}`, username)
+
+      response = {
+        token,
+      }
+      break
+    }
+  }
+  return new Response(JSON.stringify(response), {
+    headers: {
+      'content-type': 'text/plain',
+    },
+  })
+}
+</code></pre>
+<p>I wrote the code as clean as possible to not complicate things by explaining
+them with my English :)</p>
+<h3>CORS settings</h3>
+<p>We have created the API with workers. There's one thing needs to be done in the code
+in order to connect them via a browser; CORS (Cross Origin Resource Sharing) settings.
+Basically we need to whitelist a domain or url that we are going to connect to
+the API we have created.</p>
+<pre><code>async function handleRequest(request) {
+  // ...
+  return new Response(JSON.stringify(response), {
+    headers: {
+      'content-type': 'text/plain',
+      'Access-Control-Allow-Origin': '*', // Whildcard allows all domains
+      'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
+      'Access-Control-Max-Age': '86400',
+    },
+  })
+}
+</code></pre>
+<p>Yon can type the domain instead of the asteriks whildcard.</p>
+<h3>Deployment</h3>
+<p>I use <a href="https://developers.cloudflare.com/workers/cli-wrangler">wrangler</a> to manage
+my workers. You can write and publish them on cloudflare dashboard as well. I find command-line
+tool more useful when you develop something more complicated.</p>
+<pre><code>$ my-cloudflare-worker % wrangler publish
+✨  Built successfully, built project size is 213 KiB.
+✨  Successfully published your script to
+https://vectorial-cloudflare-worker.fatih-erikli.workers.dev
+
+</code></pre>
+<p>Let's try our endpoints.</p>
+<p>I am going to register myself.</p>
+<pre><code>$ http post &quot;https://1.fatih-erikli.workers.dev/register&quot; username=benfatih password=hello
+HTTP/1.1 200 OK
+Access-Control-Allow-Methods: GET,HEAD,POST,OPTIONS
+Access-Control-Allow-Origin: *
+Access-Control-Max-Age: 86400
+CF-RAY: 6b77697eab936b36-AMS
+Connection: keep-alive
+Content-Encoding: gzip
+Content-Type: text/plain
+Date: Thu, 02 Dec 2021 20:47:45 GMT
+NEL: {&quot;success_fraction&quot;:0,&quot;report_to&quot;:&quot;cf-nel&quot;,&quot;max_age&quot;:604800}
+Server: cloudflare
+Transfer-Encoding: chunked
+Vary: Accept-Encoding
+
+{
+    &quot;token&quot;: &quot;Wohoo yay, it worked. Of course I cropped my auth token. Its mine&quot;
+}
+</code></pre>
+<p>It worked :) We are going to authenticate ourselves with the token returned by our endpoint.</p>
+<pre><code>$ http post &quot;https://1.fatih-erikli.workers.dev/auth&quot; token=mytoken
+HTTP/1.1 200 OK
+Access-Control-Allow-Methods: GET,HEAD,POST,OPTIONS
+Access-Control-Allow-Origin: *
+Access-Control-Max-Age: 86400
+CF-RAY: 6b776bd4edcb1ead-AMS
+Connection: keep-alive
+Content-Length: 23
+Content-Type: text/plain
+Date: Thu, 02 Dec 2021 20:49:20 GMT
+NEL: {&quot;success_fraction&quot;:0,&quot;report_to&quot;:&quot;cf-nel&quot;,&quot;max_age&quot;:604800}
+Server: cloudflare
+Vary: Accept-Encoding
+
+{
+    &quot;username&quot;: &quot;benfatih&quot;
+}
+
+</code></pre>
+<p>Yay. We are able to authenticate with an authentication token instead of username and password.</p>
+<p>That's all :)</p>
+<p>Happy hacking!</p>
+    </article>
+    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="6" tabindex="-16">
+      <h3 aria-label="Title"><a role="link" href="asyncio-streams.html">You don't actually need a AsyncIO version of a database driver</a></h3>
+      <time>30 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In my previous blog-post, I created a simple http server that calls a
+redis method; increases the specified key with request body
+in the redis store.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="6" tabindex="-16">
+      <h3 aria-label="Title"><a role="link" href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a></h3>
+      <time>30 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I am not going to create yet another http server for asyncio, rather,
+I will share some code pieces that I can create simple http endpoints
+for AsyncIO.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="6" tabindex="-16">
+      <h3 aria-label="Title"><a role="link" href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO's event loop</a></h3>
+      <time>29 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>AsyncIO is a built-in python library to write concurrent
+code with a new language keywords "async" and "await'. AsyncIO landed
+into python in 3.3 version. Since the Python2 is no longer supported,
+AsyncIO will be our swiss army knife to handle:</p></div>
+    </article>
+    </div>
+  </div>
+  
+</div>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

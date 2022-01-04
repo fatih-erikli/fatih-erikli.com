@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Fatih Erikli</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="index-grid.css?41fe55b70488452ab14445e5f28f74a6" />
+    <link rel="stylesheet" href="styles.css?41fe55b70488452ab14445e5f28f74a6" />
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.code === "Enter") {
+          const elementWithRoleLink = event.target
+            .querySelector("[role='link']");
+          if (elementWithRoleLink) {
+            location.href = elementWithRoleLink.getAttribute("href");
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div aria-label="personal web page" role="feed" aria-busy="false">
+  <div role="heading" class="sidebar">
+  <a href="/" id="home-link">
+    <img src="logo.svg" width="220" height="220" alt="Logo" />
+    <h1>Fatih Erikli</h1>
+  </a>
+  <p role="doc-subtitle">Full-stack software engineer, currently works for <a rel="nofollow" target="_blank" href="https://graphcommons.com">Graph Commons</a>.</p>
+  <div role="navigation" aria-label="Main">
+    <a rel="nofollow" href="https://github.com/fatih-erikli" target="_blank"><img src="./github-icon.png" alt="octopus cat" />fatih-erikli</a>
+    <a rel="nofollow" href="https://twitter.com/fatiherikliuniq" target="_blank"><img src="./twitter-icon.svg" alt="twitter bird" />fatiherikliuniq</a>
+  </div>  
+  <div area-label="Projects" class="projects">
+    <h5>Projects</h5>
+    <a href="https://fatih-erikli.github.io/time-tracker">
+      <span style="background: rgb(40, 40, 255)"></span>
+      Time tracker</a>
+      <p>Time tracker for freelancers and contractors.</p>
+    <a href="https://fatih-erikli.github.io/dark-rectangles">
+      <span style="background: rgb(40, 40, 40)"></span>
+      Dark rectangles</a>
+      <p>Figma-style zoomable and panneble area implemented in React.</p>
+
+    <a href="https://fatih-erikli.github.io/color-picker">
+      <span style="background: linear-gradient(to right, blueviolet, fuchsia);"></span>
+      Color Picker</a>
+      <p>Pure React color picker with web safe colors as a preset and last used colors.</p>
+  </div>
+</div>
+
+  <div aria-label="blog posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="0" tabindex="-10">
+      <h3 aria-label="Title"><a role="link" href="use-revisioned-state.html">Revisioning Application state in React</a></h3>
+      <time>04 Dec, 2022.</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I tried to implement a revisionable state container for the UI state
+in order to provide a functionality to undo and redo an action on an application.
+There's a lot of ways to do that, I tried to implement the simplest one.
+I created a React hook that diffs the previous state and create a change log for it.
+That change log includes the added, updated, and removed keys of objects and arrays. I keep 
+the updated values with the previous one, so I can easily invert a change and revert it back. </p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="1" tabindex="-11">
+      <h3 aria-label="Title"><a role="link" href="pattern-matching-in-typescript.html">Pattern matching in Typescript</a></h3>
+      <time>25 Dec, 2021.</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Pattern matching is a functional programming concept
+to handle conditional code branches based on the
+structured the date you are processing 
+in a declarative way. Pure functional languages such as
+Haskell and Erlang supports pattern matching and
+most of the times it is the only way of writing a
+conditional code. We don't have pattern matching
+in Javascript or Python, but with some syntactic sugar
+and precompilers such as Typescript, we can use
+pattern matching.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="2" tabindex="-12">
+      <h3 aria-label="Title"><a role="link" href="the-role-of-cryptology-in-web-applications.html">The role of cryptology in web applications</a></h3>
+      <time>11 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Cryptology and cryptography is an interdisciplinary field of study
+in computer sciences and math. Cryptography in computer 
+programming, covers the techniques of secure communication in
+computer systems and internet. Secure communication is not something
+nice to have, but it is something must to have in our times. That's why
+cryptography is an inseparable field of study in computer sciences.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="3" tabindex="-13">
+      <h3 aria-label="Title"><a role="link" href="test-driven-approach-to-worker-based-applications-development.html">Test-driven approach to worker-based web applications development</a></h3>
+      <time>08 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>Test driven development is the way of developing a software based
+on the tests you have initially written. In traditional way of 
+development, we create the application, test them manually,
+and create tests or ignore them. In test-driven approach,
+you create the tests and run them first, see them failing,
+and start implementing the application by seeing the
+tests results are passing one by one incrementally.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="4" tabindex="-14">
+      <h3 aria-label="Title"><a role="link" href="security-concerns-on-server-side-rendered-web-applications.html">My security concerns on server-side rendered web applications</a></h3>
+      <time>06 Dec, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In the current state of web development, the line between backend and frontend
+development has become almost invisible. The reason of that is we started to use
+Javascript for both client-side and server-side after NodeJS. And furthermore,
+we started to render the same components for both client-side and server side.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="5" tabindex="-15">
+      <h3 aria-label="Title"><a role="link" href="indexeddb-transactional-database-in-client-side.html">IndexedDB: High-performance transactional database in client side</a></h3>
+      <time>04 Dev, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>As you may already know, HTTP is a stateless protocol. The communication
+between the client and server happens with some flags sent by client and server mutually.
+It means, we actually don't really know which user is authenticated. User
+is sending their session id via HTTP cookies and we (server) retrieve the related record
+from the database, and prepare the page response with the information of
+authenticated user.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="6" tabindex="-16">
+      <h3 aria-label="Title"><a role="link" href="creating-user-authentication-in-cloudflare-workers.html">Creating a user authentication with Cloudflare Workers</a></h3>
+      <time>02 Dev, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I have been trying serverless computing platforms in last years. Basically these platforms allows you
+to publish functions and execute them periodically, or by triggering it
+with an HTTP request.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="7" tabindex="-17">
+      <h3 aria-label="Title"><a role="link" href="asyncio-streams.html">You don't actually need a AsyncIO version of a database driver</a></h3>
+      <time>30 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In my previous blog-post, I created a simple http server that calls a
+redis method; increases the specified key with request body
+in the redis store.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="8" tabindex="-18">
+      <h3 aria-label="Title"><a role="link" href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a></h3>
+      <time>30 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I am not going to create yet another http server for asyncio, rather,
+I will share some code pieces that I can create simple http endpoints
+for AsyncIO.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="9" tabindex="-19">
+      <h3 aria-label="Title"><a role="link" href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO's event loop</a></h3>
+      <time>29 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>AsyncIO is a built-in python library to write concurrent
+code with a new language keywords "async" and "await'. AsyncIO landed
+into python in 3.3 version. Since the Python2 is no longer supported,
+AsyncIO will be our swiss army knife to handle:</p></div>
+    </article>
+    </div>
+</div>
+
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>
