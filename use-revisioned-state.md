@@ -39,6 +39,7 @@ it to the revert function.
   Revert all changes
 </button>
 ```
+
 ### Implementing an Undo-Redo
 
 If you want to do the redo, you can count the `undo` click of user,

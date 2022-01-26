@@ -1,15 +1,7 @@
 posts:
-  - title: "Revisioning Application state in React"
-    file: use-revisioned-state.md
-    date: 04 Dec, 2022.
-
   - title: "Pattern matching in Typescript"
     file: pattern-matching-in-typescript.md
     date: 25 Dec, 2021.
-
-  # - title: "MentalHealthError: Two months passed since the treatment has started"
-  #   file: mental-health-error-progress.md
-  #   date: 13 Dec, 2021
 
   - title: The role of cryptology in web applications
     file: the-role-of-cryptology-in-web-applications.md
