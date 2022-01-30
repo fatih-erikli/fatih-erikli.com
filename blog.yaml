@@ -1,8 +1,4 @@
 posts:
-  - title: "Pattern matching in Typescript"
-    file: pattern-matching-in-typescript.md
-    date: 25 Dec, 2021.
-
   - title: The role of cryptology in web applications
     file: the-role-of-cryptology-in-web-applications.md
     date: 11 Dec, 2021
