@@ -30,36 +30,40 @@ h1 {
   width: 278px;
 }
 
-[role=heading] {
+[role="heading"] {
   font-size: 2rem;
 }
 
-[role=feed] {
+[role="feed"] {
   display: flex;
   flex-direction: column;
 }
 
-[role=list],
-[role=article] {
+[role="list"],
+[role="article"] {
   padding-top: 1rem;
 }
 
-[role=list] {
+[role="list"] {
   display: flex;
   flex-wrap: wrap;
 }
 
-[role=listitem] {
-  padding: 1rem;
-  box-sizing: border-box;
+[role="listitem"]:first-child {
+  margin-top: 0;
 }
 
-[role=document] {
+[role="listitem"] {
+  box-sizing: border-box;
+  margin: 2rem 2rem 0;
+}
+
+[role="document"] {
   padding: 0 1rem 1rem 1rem;
   box-sizing: border-box;
 }
 
-[role=document] p {
+[role="document"] p {
   max-width: 900px;
 }
 
@@ -71,27 +75,27 @@ time {
   margin-top: 1rem;
 }
 
-[role=navigation] {
+[role="navigation"] {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  font-size: 1rem; 
+  font-size: 1rem;
   padding: 0.6rem 1rem;
 }
 
-[role=navigation] a {
+[role="navigation"] a {
   padding: 0.3rem 1rem;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-[role=navigation] a img {
+[role="navigation"] a img {
   width: 32px;
   height: 32px;
 }
 
-[role=doc-subtitle] {
+[role="doc-subtitle"] {
   margin: 0;
   font-size: 0.5em;
   padding: 0.6rem 2rem 0.6rem 2rem;
@@ -130,7 +134,6 @@ p code {
   display: inline-block;
   padding: 0.1rem 0.3rem;
 }
-
 
 pre,
 code {
@@ -174,7 +177,7 @@ h3[role="heading"] {
   gap: 0;
 }
 
-.other-posts article[role=listitem] {
+.other-posts article[role="listitem"] {
   padding: 1rem;
 }
 
@@ -182,7 +185,7 @@ h3[role="heading"] {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  font-size: 1rem; 
+  font-size: 1rem;
   padding: 0.6rem 2rem;
 }
 
@@ -209,22 +212,24 @@ h3[role="heading"] {
   margin-top: 0;
 }
 
-[role=list] figure {
+[role="list"] figure {
   width: 50%;
 }
 
 @media (min-width: 900px) {
-  [role=feed] {
+  [role="feed"] {
     flex-direction: row;
   }
 
-  [role=listitem] {
+  [role="listitem"] {
     width: calc(100% / 2);
+    margin: 0;
+    padding: 1rem;
   }
 }
 
 @media (min-width: 1400px) {
-  [role=listitem] {
+  [role="listitem"] {
     width: calc(100% / 3);
   }
 }
