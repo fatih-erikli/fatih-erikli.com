@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" class="canvas" id="preview" width="128" height="128">
     <rect fill="#282828" y="48px" width="128px" height="12px"></rect>
     <rect fill="#282828" y="10px" x="28px" width="12px" height="128px"></rect>
-    <rect fill="#282828" x="44px" y="64px" width="12px" height="12px"></rect>
+    <rect fill="#aca8a8" x="44px" y="64px" width="12px" height="12px"></rect>
 </svg>
