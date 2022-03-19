@@ -15,7 +15,7 @@ To persist a data (storing data in client-side), we have the following options c
 - SessionStorage
 - IndexedDB
 
-Each of them is important and has specific use cases in current state of web architecture.
+Each of them is important and has specific use cases in current state of web technologies.
 
 ### Cookies
 
