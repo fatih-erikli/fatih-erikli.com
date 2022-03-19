@@ -171,10 +171,9 @@ the user can increment the number and find other irrelevant records and confuse 
 
 <a href="https://datatracker.ietf.org/doc/html/rfc4122">A Universally Unique Identifier (UUID) URN Namespace</a>
 
-This is all. I wanted to share my experiences with IndexedDB. I created two different
-projects with IndexedDB and published them on github.
+This is all. You can also read the source code
+of a time tracker application that uses IndexedDB.
 
 - <a href="https://fatih-erikli.github.io/time-tracker">Time tracker</a>
-- <a href="https://vectorial-project.github.io">Vectorial: In-browser vector graphics editor</a>
 
-Happy hacking! :)
+Happy hacking!
