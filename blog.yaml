@@ -1,8 +1,4 @@
 posts:
-  - title: The role of cryptology in web applications
-    file: the-role-of-cryptology-in-web-applications.md
-    date: 11 Dec, 2021
-
   - title: "Test-driven approach to worker-based web applications development"
     file: test-driven-approach-to-worker-based-applications-development.md
     date: 08 Dec, 2021
@@ -23,8 +19,8 @@ posts:
     file: asyncio-streams.md
     date: 30 Nov, 2021
 
-  - title: "Whirlwind: HTTP server boilerplate for AsyncIO"
-    file: whirlwind.md
+  - title: "HTTP server boilerplate for AsyncIO"
+    file: asyncio-boilerplate.md
     date: 30 Nov, 2021
 
   - title: Creating a web-server in AsyncIO's event loop
