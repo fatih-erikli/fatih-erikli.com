@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="stylesheet" href="index-grid.css?6eb51503ca404aff86d0447098a316ab" />
-    <link rel="stylesheet" href="styles.css?6eb51503ca404aff86d0447098a316ab" />
+    <link rel="stylesheet" href="index-grid.css?019704256f6249e88668e524c546dc2c" />
+    <link rel="stylesheet" href="styles.css?019704256f6249e88668e524c546dc2c" />
     <script>
       document.addEventListener("keydown", (event) => {
         if (event.code === "Enter") {
@@ -62,7 +62,6 @@ from the database, and prepare the page response with the information of
 authenticated user.</p>
 <ul>
 <li><a href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO</a></li>
-<li><a href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a></li>
 </ul>
 <p>To persist a data (storing data in client-side), we have the following options currently.</p>
 <ul>
@@ -209,40 +208,57 @@ of a time tracker application that uses IndexedDB.</p>
 <p>Happy hacking!</p>
     </article>
     <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
-    <article role="listitem" aria-posinset="0" tabindex="-4">
-      <h3 aria-label="Title"><a role="link" href="creating-user-authentication-in-cloudflare-workers.html">Creating a user authentication with Cloudflare Workers</a></h3>
-      <time>02 Dev, 2021</time>
-      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I have been trying serverless computing platforms in last years. Basically these platforms allows you
-to publish functions and execute them periodically, or by triggering it
-with an HTTP request.</p></div>
-    </article>
-    
-
-    <article role="listitem" aria-posinset="0" tabindex="-4">
-      <h3 aria-label="Title"><a role="link" href="asyncio-streams.html">You don't actually need a AsyncIO version of a database driver</a></h3>
-      <time>30 Nov, 2021</time>
-      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In my previous blog-post, I created a simple http server that calls a
-redis method; increases the specified key with request body
-in the redis store.</p></div>
-    </article>
-    
-
-    <article role="listitem" aria-posinset="0" tabindex="-4">
-      <h3 aria-label="Title"><a role="link" href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO's event loop</a></h3>
+    <article role="listitem" aria-posinset="0" tabindex="-3">
+      <h3 aria-label="Title"><a role="link" href="creating-a-web-server-in-asyncio.html">Creating a web-server with AsyncIO</a></h3>
       <time>29 Nov, 2021</time>
       <div aria-label="Description" role="contentinfo" class="post-preview"><p>AsyncIO is a built-in python library to write concurrent
 code with a new language keywords "async" and "await'. AsyncIO landed
 into python in 3.3 version. Since the Python2 is no longer supported,
-AsyncIO will be our swiss army knife to handle:</p></div>
+AsyncIO will be our swiss army knife to handle:</p>
+<ul>
+<li>Network operations</li>
+<li>Subprocesses</li>
+<li>Distributed tasks</li>
+</ul>
+<p>And many more.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="0" tabindex="-3">
+      <h3 aria-label="Title"><a role="link" href="creating-user-authentication-in-cloudflare-workers.html">Developing a User authentication in CF worker</a></h3>
+      <time>02 Dev, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I have been trying serverless computing platforms in last years. Basically these platforms allows you
+to publish functions and execute them periodically, or by triggering it
+with an HTTP request.</p>
+<p>What I have tried so far:</p>
+<ul>
+<li>Amazon Lambda</li>
+<li>CloudFlare</li>
+<li>Serverless Framework (This is not a platform; but a framework that helps you to publish your architecture in
+ any platform)</li>
+</ul>
+<p>In this blog post I will share an example in CloudFlare. Why so?</p>
+<ul>
+<li>It's free</li>
+<li>I find the control panel more user and developer friendly</li>
+<li>They have a strong development community</li>
+</ul>
+<p>We will create a user authentication by using Cloudflare workers.</p>
+<p>Let's write down what we are going to build first. We will have three API endpoints.</p>
+<ul>
+<li>Registration</li>
+<li>Login</li>
+<li>Auth</li>
+</ul>
+<p>Registration and login is obvious. Auth endpoint will help us to authenticate user
+after the login process. We will store the <code>auth_token</code> provided us from the login or
+registration endpoint; and reuse them later (when the user refresh the page) to reauthenticate
+them again.</p></div>
     </article>
     </div>
   </div>
   
 </div>
 
-    <link rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
   </body>
 </html>

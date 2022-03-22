@@ -6,7 +6,6 @@ from the database, and prepare the page response with the information of
 authenticated user.
 
 - <a href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO</a>
-- <a href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a>
 
 To persist a data (storing data in client-side), we have the following options currently.
 

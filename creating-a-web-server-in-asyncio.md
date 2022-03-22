@@ -277,10 +277,4 @@ Server: almost-an-nginx
 }
 ```
 
-It has become a very simple http client to handle async requests with AsyncIO library.
-In the next blog post, I will convert that functionality into a more handy microframework
-to create REST APIs in AsyncIO library, which is a perfect use case for handling HTTP
-via AsyncIO.
-
-
-Next blog post: <a href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a>
+Happy hacking.

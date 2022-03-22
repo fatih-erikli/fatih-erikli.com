@@ -2,7 +2,6 @@ In my previous blog-post, I created a simple http server that calls a
 redis method; increases the specified key with request body
 in the redis store.
 
- - <a href="whirlwind.html">Whirlwind: HTTP server boilerplate for AsyncIO</a>
  - <a href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO</a>
 
 In this article, I will share how the communication between our python
