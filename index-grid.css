@@ -37,6 +37,8 @@ h1 {
 [role="feed"] {
   display: flex;
   flex-direction: column;
+  max-width: 900px;
+  margin: auto;
 }
 
 [role="list"],
