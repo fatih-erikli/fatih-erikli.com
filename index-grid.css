@@ -230,12 +230,6 @@ h3[role="heading"] {
   }
 }
 
-@media (min-width: 1400px) {
-  [role="listitem"] {
-    width: calc(100% / 3);
-  }
-}
-
 @media (max-width: 900px) {
   .sidebar {
     width: auto;
