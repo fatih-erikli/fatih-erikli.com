@@ -1,12 +1,4 @@
 posts:
-  - title: "Test-driven approach to worker-based web applications development"
-    file: test-driven-approach-to-worker-based-applications-development.md
-    date: 08 Dec, 2021
-
-  - title: "My security concerns on server-side rendered web applications"
-    file: security-concerns-on-server-side-rendered-web-applications.md
-    date: 06 Dec, 2021
-
   - title: "IndexedDB: High-performance transactional database in client side"
     file: indexeddb-transactional-database-in-client-side.md
     date: 04 Dev, 2021
