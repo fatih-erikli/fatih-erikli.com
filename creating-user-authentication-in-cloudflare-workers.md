@@ -244,7 +244,8 @@ Let's try our endpoints.
 I am going to register myself.
 
 ```
-$ http post "https://1.fatih-erikli.workers.dev/register" username=benfatih password=hello
+$ http post "https://1.fatih-erikli.workers.dev/register"
+username=benfatih password=hello
 HTTP/1.1 200 OK
 Access-Control-Allow-Methods: GET,HEAD,POST,OPTIONS
 Access-Control-Allow-Origin: *

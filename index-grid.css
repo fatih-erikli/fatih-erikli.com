@@ -244,3 +244,27 @@ grid-row-end: 1;
     padding-right: 1rem;
   }
 }
+
+.sketches {
+  width: 960px;
+  margin: auto;
+}
+
+.row {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.sketches .large {
+  width: 50%;
+  height: 400px;
+  overflow: hidden;
+}
+
+.sketches .medium {
+  width: 40%;
+}
+
+.sketches img {
+  width: 100%;
+}

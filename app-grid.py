@@ -22,7 +22,7 @@ def render_markdown(content):
 
 def render_post_preview(post):
   content = open(post['file']).read()
-  post_preview = render_markdown(content.split('###')[0])
+  post_preview = render_markdown(content)
   return '''
     <article role="listitem" aria-posinset="%(post_inset)s" tabindex="%(tab_index)s">
       <h3 aria-label="Title"><a role="link" href="%(url)s">%(title)s</a></h3>

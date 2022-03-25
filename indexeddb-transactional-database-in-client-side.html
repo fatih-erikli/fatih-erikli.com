@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>IndexedDB: High-performance transactional database in client side</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="stylesheet" href="index-grid.css?31406869736643b5bdce5d0b29f7e9dd" />
-    <link rel="stylesheet" href="styles.css?31406869736643b5bdce5d0b29f7e9dd" />
-    <script>
-      document.addEventListener("keydown", (event) => {
-        if (event.code === "Enter") {
-          const elementWithRoleLink = event.target
-            .querySelector("[role='link']");
-          if (elementWithRoleLink) {
-            location.href = elementWithRoleLink.getAttribute("href");
-          }
+
+<head>
+  <title>IndexedDB: High-performance transactional database in client side</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="index-grid.css?ee9b472e8d0b40d5b8adaadda801e256" />
+  <link rel="stylesheet" href="styles.css?ee9b472e8d0b40d5b8adaadda801e256" />
+  <script>
+    document.addEventListener("keydown", (event) => {
+      if (event.code === "Enter") {
+        const elementWithRoleLink = event.target
+          .querySelector("[role='link']");
+        if (elementWithRoleLink) {
+          location.href = elementWithRoleLink.getAttribute("href");
         }
-      });
-    </script>
-  </head>
-  <body>
-    <div aria-label="personal web page" role="feed" aria-busy="false">
+      }
+    });
+  </script>
+</head>
+
+<body>
+
+  
+  <div aria-label="personal web page" role="feed" aria-busy="false">
   <div role="heading" class="sidebar">
   <br />
   <a href="/" id="home-link">
@@ -220,7 +224,225 @@ AsyncIO will be our swiss army knife to handle:</p>
 <li>Subprocesses</li>
 <li>Distributed tasks</li>
 </ul>
-<p>And many more.</p></div>
+<p>And many more.</p>
+<h3>What does concurrent mean?</h3>
+<p>In computer science, concurrency means the ability to execute different parts of the 
+program simulatanoeusly. In concurrent programming, we write our functions as partial units
+that can be executed as parallel (each of them working at the same time), or synchronously
+(each of them working in a following order, not at the same time), without affecting the
+final result.</p>
+<p>Concurency tools helps us to make an abstraction to write functions can be worked in a
+parallel way or in a sync way. The piece of function or code will not be aware that 
+it is working in a parallel or in a synchronous order.</p>
+<figure>
+<img src="public/concurrent-task-execution.svg" style="width: 100%" />
+<figcaption>Parallel vs Synchronous execution</figcaption>
+</figure>
+
+<p>In the figure above, we see the same tasks set (could be a whole function)
+running as concurrent (in parallel) and synchronously. As the time moves,
+the tasks in synchronous order moves in parallel to the time. Only one
+task is running at a moment; it other words, a one task needs to be ran
+in order to execute the next function.</p>
+<p>In concurrent version of the implementation, all the tasks starts to run
+at the same moment, and some tasks are finished before some others tasks.</p>
+<p>The syncronous way of programming is the way of we program the things from the
+very beginning. What we have learned until this time was synchronous way of programming.
+There is no something special to be done in order to achieve this style programming.</p>
+<p>In concurrent functions, we need special data types and structure to check if a task
+is running, failed, or completed. Also we need to be able to wait until a specific task
+or a task set to be completed. In Python programming language, with 3.3. version,
+<code>async</code> and <code>await</code> was keywords introduced for handling concurrent operations.</p>
+<h3>How does the HTTP protocol work</h3>
+<p>We are going to create an HTTP server to play with <code>AsyncIO</code> library. Network operations
+are the most popular use case for concurrent operations. Because we want to serve our
+functions to as many as users possible at a time. One long lasting process should not
+block the execution of functions for other users. This is a perfect use case for examples.</p>
+<figure>
+<img src="public/http-diagram.svg" style="width: 100%" />
+<figcaption>Very simple HTTP workflow</figcaption>
+</figure>
+
+<h3>Streams</h3>
+<p>Streams are data structures to work with network connections. An http server 
+and an http request basically corresponds the two pairs of an socket operation;
+one pair is sending an information, the other pair is receiving the information.</p>
+<p>HTTP server is a TCP server running on a specific port. The default HTTP port is <code>:80</code>.
+When you connect to a web-site, you connect to the server is running on <code>:80</code> port 
+on a machine. You don't see the <code>:80</code> port, because it is default. If you try to connect
+to a different port, you need to specificy the port you want to connect with a double-colon;
+as an example: <code>https://python.org:8888</code>, even though this is not a correct use-case in practice, because
+the default port for an HTTPS connection is <code>443</code>.</p>
+<p>Let's go step by step and create a TCP server first.</p>
+<pre><code class="language-python">import asyncio
+
+async def pong(reader, writer):
+    data = await reader.read(100)
+    writer.write(b'pong')
+    await writer.drain()
+    writer.close()
+
+async def main():
+    server = await asyncio.start_server(pong, '127.0.0.1', 8888)
+    async with server:
+        await server.serve_forever()
+
+asyncio.run(main())
+</code></pre>
+<p>We have created a ping pong application. When a client send a message to our server,
+we will respond with <code>pong</code>. It's a simple application.</p>
+<h3>How do we connect to a TCP server?</h3>
+<p>Let's go with telnet application first; we don't
+serve with an http response yet.</p>
+<pre><code>$ my-blog % telnet 127.0.0.1 8888
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+</code></pre>
+<p>Telnet has it's own way of communication as you can notice in response.
+We will write "ping" here.</p>
+<pre><code>ping
+pong
+Connection closed by foreign host.
+</code></pre>
+<p>We received a pong response. This is how we communicate with servers. What happens when we
+open this URL with a browser? The answer is; most of the modern browsers will show an error
+message to the user indicating the http response is not valid.</p>
+<p>We need to prepare a well-formatted http response to the user.</p>
+<pre><code class="language-python">def http_document(content, status_code):
+    return '\n'.join((
+        f'HTTP/1.1 {status_code} OK',
+        f'Content-Length: {len(content)}',
+        'Content-Type: text/html',
+        'Server: almost-an-nginx',
+        '\r',
+        content
+    ))
+
+def prepare_html(content, status_code=200):
+    html = f'&lt;!DOCTYPE html&gt;{content}'
+    return http_document(html, status_code)
+</code></pre>
+<p>We will respond in that way. We need to update our server function accordingly:</p>
+<pre><code class="language-python">async def serve(reader, writer):
+    data = await reader.read(100)
+    writer.write(str.encode(prepare_html())) # this is where we prepare the response
+    await writer.drain()
+    writer.close()
+</code></pre>
+<p>We respond with the same http response does not matter where the current user landed.
+The browser sends us a message which is formatted as same as http response. This
+message is defined by HTTP protocol.</p>
+<p>So the HTTP protocol has two pairs; one is Request and the other one is Response.
+We prepared the http response. Now we need to process the http request.
+We have not opened the message package in our server yet. Let's go further.</p>
+<pre><code class="language-python">async def serve(reader, writer):
+    data = await reader.read(100)
+    message = data.decode()
+</code></pre>
+<p>The message is the http request itself. Lets dive into it.</p>
+<pre><code>GET /favicon.ico HTTP/1.1
+Host: 127.0.0.1:8888
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X
+</code></pre>
+<p>It will be something like that. Did you notice something? The User-agent
+is cropped. Why is that happening? Answer is, we read only 100 bytes of the
+message.</p>
+<p>There is an http server implementation in Python's builtin library. It reads
+<code>65537</code> bytes of the incoming message, which is the max limit that the server
+can interpret. There is no limit; it is defined by your needs;
+although the http request will not be greather than that specified number in practice.
+The server respond's with <code>REQUEST_URI_TOO_LONG</code> http response if the 
+receive message is greather than that number.</p>
+<p>I trust Python's code so I will use the same size. I updated the server
+accordingly and received the full http request message.</p>
+<pre><code>GET / HTTP/1.1
+Host: 127.0.0.1:8888
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:94.0)
+Accept: text/html,application/xhtml+xml,application/xml;
+Accept-Language: en-US,en;
+</code></pre>
+<p>The http request starts with the http method performed by user. Browser makes
+the request always with <code>GET</code> method when you visit a URL. Other methods has
+different use cases; such as form submissions. When the user makes a form
+submission; it's sent as <code>POST</code> method. It does not have to be <code>POST</code> necessarily;
+although it is practical and convenient handle the form submissions with <code>POST</code> method,
+because the browser is informing the user like "Do you really submit the form again?"
+when they refresh the page after clicking submit button.</p>
+<p>The second parameter after the method is the path; which is the most important
+parameter in our case; it specifies the path which the user wants to land on.
+We can simply assume that <code>/</code> means the user is on the home-page. The third parameter after the path is the HTTP version. Currently browsers
+send HTTP/1.1 version.</p>
+<p>It's not hard to parse that document; most of the cases we only do need to know the method
+of request, the path, and the request body depending on the request method.</p>
+<pre><code class="language-python">def handle_post(method, request_body):
+    import json
+    input_json = json.loads(request_body)
+    message = input_json['message']
+    return prepare_html(f'&lt;h3&gt;{message}&lt;/h3&gt;')
+
+ROUTES = {
+    '/post-something': handle_post,
+    '/':
+        lambda method, request_body:
+            prepare_html('&lt;h3&gt;Home page&lt;/h3&gt;'),
+    '/about':
+        lambda method, request_body:
+            prepare_html('&lt;h3&gt;About page&lt;/h3&gt;')
+}
+
+async def serve(reader, writer):
+    data = await reader.read(65537)
+    message = data.decode()
+    [first_line, *headers, request_body] = (message.split('\n'))
+    [method, path, version] = first_line.split()
+
+    handler = ROUTES.get(path)
+
+    if handler is None:
+        writer.write(str.encode(prepare_html('Not found', 404)))
+    else:
+        writer.write(str.encode(handler(method, request_body)))
+
+    await writer.drain()
+    writer.close()
+</code></pre>
+<p>Simply we created a router. Our web server is able to handle the request methods
+and requested paths by the user. The last line of the http request is the request body;
+which is the payload submitted by the client.</p>
+<p>In REST APIs, usually the request body is sent as a stringified JSON document.
+We can use python's json module to parse that JSON document.</p>
+<p>When the user calles the <code>/post-something</code> with a valid json body; we respond
+an html document with the message specified in that json package.</p>
+<p>I use <code>httpie</code> package to send http commands via command lines. Here's how
+I am testing my <code>/post-something</code> endpoint.</p>
+<pre><code>$ http post &quot;127.0.0.1:8888/post-something&quot; message=&quot;lorem ipsum dolor sit amet&quot;
+HTTP/1.1 200 OK
+Content-Length: 50
+Content-Type: text/html
+Server: almost-an-nginx
+
+&lt;!DOCTYPE html&gt;&lt;h3&gt;lorem ipsum dolor sit amet&lt;/h3&gt;
+</code></pre>
+<p>In practice, we need to respond with a JSON for an endpoint which is expecting
+a json body to process.</p>
+<p>It is simple. We will create a different function instead of <code>prepare_html</code>.</p>
+<pre><code class="language-python">def json_response(payload):
+    return http_document(json.dumps(payload), 200)
+</code></pre>
+<p>We call the same endpoint; as you will notice we respond with stringified json
+instead of an html document.</p>
+<pre><code>$ http post &quot;127.0.0.1:8888/post-something&quot; message=&quot;lorem ipsum dolor sit amet&quot;
+HTTP/1.1 200 OK
+Content-Length: 41
+Content-Type: text/html
+Server: almost-an-nginx
+
+{
+    &quot;message&quot;: &quot;lorem ipsum dolor sit amet&quot;
+}
+</code></pre>
+<p>Happy hacking.</p></div>
     </article>
     
 
@@ -253,12 +475,246 @@ with an HTTP request.</p>
 <p>Registration and login is obvious. Auth endpoint will help us to authenticate user
 after the login process. We will store the <code>auth_token</code> provided us from the login or
 registration endpoint; and reuse them later (when the user refresh the page) to reauthenticate
-them again.</p></div>
+them again.</p>
+<h3>Persistance layer</h3>
+<p>First of all; we need to create a KV store; which is the database (or key-value store) of CloudFlare.</p>
+<p><a href="https://developers.cloudflare.com/workers/runtime-apis/kv">https://developers.cloudflare.com/workers/runtime-apis/kv</a></p>
+<p>You can create a KV store on cloudflare panel; or you can create it with <a href="https://developers.cloudflare.com/workers/cli-wrangler">wrangler</a>
+command line tool.</p>
+<p>Let's start with Registration endpoint.</p>
+<pre><code class="language-javascript">const sha256 = require('crypto-js/sha256')
+const cryptoJs = require('crypto-js')
+const jwt = require('jsonwebtoken')
+
+addEventListener('fetch', event =&gt; {
+  event.respondWith(handleRequest(event.request))
+})
+
+/**
+ * Simple authentication
+ * @param {Request} request
+ */
+async function handleRequest(request) {
+  const url = new URL(request.url)
+  const { pathname } = url
+  let response = { pathname }
+  switch (pathname) {
+    case '/register': {
+      const { username, password } = await request.json()
+
+      const user = await YOURKVSTORE.get(`user:${username}`)
+      if (user) {
+        response = {
+          error: 'User exists.',
+        }
+        break
+      }
+
+      const hashedPassword = sha256(password).toString(cryptoJs.enc.Hex)
+      // this is important
+      await YOURKVSTORE.put(`user:${username}`, hashedPassword)
+
+      const token = jwt.sign({ username }, TOKEN_KEY, {
+        expiresIn: '2h',
+      })
+
+      await YOURKVSTORE.put(`user_token:${token}`, username)
+
+      response = {
+        token,
+      }
+      break
+    }
+  }
+  return new Response(JSON.stringify(response), {
+    headers: {
+      'content-type': 'text/json'
+    },
+  })
+}
+</code></pre>
+<p>This is how an event-driven computing-ready function looks like in any platform.
+It is not so different than creating a controller in a http or Rest API framework;
+we have a request body and we create a response with that.</p>
+<h3>Most important thing</h3>
+<p>You cannot store the user's password in your database. You need to hash them with a
+hashing algorithm; such as sha256, and save them.</p>
+<p>When the user types username and password in login page; we need to hash the
+password provided by user; and match the hashed pairs, instead of raw password.
+This is very important.</p>
+<p>After the hashing algorithm; we use JWT (JSON Web Token) to create a token
+that we can authenticate the user without username and password.</p>
+<pre><code class="language-javascript">/**
+ * Simple authentication
+ * @param {Request} request
+ */
+async function handleRequest(request) {
+  const url = new URL(request.url)
+  const { pathname } = url
+  let response = { pathname }
+  switch (pathname) {
+    case '/login': {
+      const { username, password } = await request.json()
+      const hashedPassword = sha256(password).toString(cryptoJs.enc.Hex)
+      const storedPassword = await VECTORIAL.get(`user:${username}`)
+      if (storedPassword === hashedPassword) {
+        const token = jwt.sign({ username }, TOKEN_KEY, {
+          expiresIn: '2h',
+        })
+
+        await VECTORIAL.put(`user_token:${token}`, username)
+
+        response = {
+          token,
+        }
+      } else {
+        response = {
+          error: 'Invalid credientials.',
+        }
+      }
+      break
+    }
+    case '/auth': {
+      const { token } = await request.json()
+
+      let user
+
+      try {
+        user = jwt.verify(token, TOKEN_KEY)
+      } catch (e) {
+        response = {
+          error: 'Invalid signature.',
+        }
+      }
+
+      if (user) {
+        const username = await VECTORIAL.get(`user_token:${token}`);
+        if (!username) {
+          response = {
+            error: 'Invalid signature.',
+          }
+        } else {
+          response = {
+            username,
+          }
+        }
+      }
+      break
+    }
+    case '/register': {
+      const { username, password } = await request.json()
+
+      const user = await VECTORIAL.get(`user:${username}`)
+      if (user) {
+        response = {
+          error: 'User exists.',
+        }
+        break
+      }
+
+      const hashedPassword = sha256(password).toString(cryptoJs.enc.Hex)
+      await VECTORIAL.put(`user:${username}`, hashedPassword)
+
+      const token = jwt.sign({ username }, TOKEN_KEY, {
+        expiresIn: '2h',
+      })
+
+      await VECTORIAL.put(`user_token:${token}`, username)
+
+      response = {
+        token,
+      }
+      break
+    }
+  }
+  return new Response(JSON.stringify(response), {
+    headers: {
+      'content-type': 'text/plain',
+    },
+  })
+}
+</code></pre>
+<p>I wrote the code as clean as possible to not complicate things by explaining
+them with my English :)</p>
+<h3>CORS settings</h3>
+<p>We have created the API with workers. There's one thing needs to be done in the code
+in order to connect them via a browser; CORS (Cross Origin Resource Sharing) settings.
+Basically we need to whitelist a domain or url that we are going to connect to
+the API we have created.</p>
+<pre><code>async function handleRequest(request) {
+  // ...
+  return new Response(JSON.stringify(response), {
+    headers: {
+      'content-type': 'text/plain',
+      'Access-Control-Allow-Origin': '*', // Whildcard allows all domains
+      'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
+      'Access-Control-Max-Age': '86400',
+    },
+  })
+}
+</code></pre>
+<p>Yon can type the domain instead of the asteriks whildcard.</p>
+<h3>Deployment</h3>
+<p>I use <a href="https://developers.cloudflare.com/workers/cli-wrangler">wrangler</a> to manage
+my workers. You can write and publish them on cloudflare dashboard as well. I find command-line
+tool more useful when you develop something more complicated.</p>
+<pre><code>$ my-cloudflare-worker % wrangler publish
+✨  Built successfully, built project size is 213 KiB.
+✨  Successfully published your script to
+https://vectorial-cloudflare-worker.fatih-erikli.workers.dev
+
+</code></pre>
+<p>Let's try our endpoints.</p>
+<p>I am going to register myself.</p>
+<pre><code>$ http post &quot;https://1.fatih-erikli.workers.dev/register&quot;
+username=benfatih password=hello
+HTTP/1.1 200 OK
+Access-Control-Allow-Methods: GET,HEAD,POST,OPTIONS
+Access-Control-Allow-Origin: *
+Access-Control-Max-Age: 86400
+CF-RAY: 6b77697eab936b36-AMS
+Connection: keep-alive
+Content-Encoding: gzip
+Content-Type: text/plain
+Date: Thu, 02 Dec 2021 20:47:45 GMT
+NEL: {&quot;success_fraction&quot;:0,&quot;report_to&quot;:&quot;cf-nel&quot;,&quot;max_age&quot;:604800}
+Server: cloudflare
+Transfer-Encoding: chunked
+Vary: Accept-Encoding
+
+{
+    &quot;token&quot;: &quot;Wohoo yay, it worked. Of course I cropped my auth token. Its mine&quot;
+}
+</code></pre>
+<p>It worked :) We are going to authenticate ourselves with the token returned by our endpoint.</p>
+<pre><code>$ http post &quot;https://1.fatih-erikli.workers.dev/auth&quot; token=mytoken
+HTTP/1.1 200 OK
+Access-Control-Allow-Methods: GET,HEAD,POST,OPTIONS
+Access-Control-Allow-Origin: *
+Access-Control-Max-Age: 86400
+CF-RAY: 6b776bd4edcb1ead-AMS
+Connection: keep-alive
+Content-Length: 23
+Content-Type: text/plain
+Date: Thu, 02 Dec 2021 20:49:20 GMT
+NEL: {&quot;success_fraction&quot;:0,&quot;report_to&quot;:&quot;cf-nel&quot;,&quot;max_age&quot;:604800}
+Server: cloudflare
+Vary: Accept-Encoding
+
+{
+    &quot;username&quot;: &quot;benfatih&quot;
+}
+
+</code></pre>
+<p>Yay. We are able to authenticate with an authentication token instead of username and password.</p>
+<p>That's all :)</p>
+<p>Happy hacking!</p></div>
     </article>
     </div>
   </div>
   
 </div>
 
-  </body>
+</body>
+
 </html>

@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Developing a User authentication in CF worker</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="stylesheet" href="index-grid.css?2f9d114b73b54667914a0bba2add107a" />
-    <link rel="stylesheet" href="styles.css?2f9d114b73b54667914a0bba2add107a" />
-    <script>
-      document.addEventListener("keydown", (event) => {
-        if (event.code === "Enter") {
-          const elementWithRoleLink = event.target
-            .querySelector("[role='link']");
-          if (elementWithRoleLink) {
-            location.href = elementWithRoleLink.getAttribute("href");
-          }
+
+<head>
+  <title>Developing a User authentication in CF worker</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="index-grid.css?b862de143bb441c69a86a1fb83f8151c" />
+  <link rel="stylesheet" href="styles.css?b862de143bb441c69a86a1fb83f8151c" />
+  <script>
+    document.addEventListener("keydown", (event) => {
+      if (event.code === "Enter") {
+        const elementWithRoleLink = event.target
+          .querySelector("[role='link']");
+        if (elementWithRoleLink) {
+          location.href = elementWithRoleLink.getAttribute("href");
         }
-      });
-    </script>
-  </head>
-  <body>
-    <div aria-label="personal web page" role="feed" aria-busy="false">
+      }
+    });
+  </script>
+</head>
+
+<body>
+
+  
+  <div aria-label="personal web page" role="feed" aria-busy="false">
   <div role="heading" class="sidebar">
   <br />
   <a href="/" id="home-link">
@@ -271,7 +275,8 @@ https://vectorial-cloudflare-worker.fatih-erikli.workers.dev
 </code></pre>
 <p>Let's try our endpoints.</p>
 <p>I am going to register myself.</p>
-<pre><code>$ http post &quot;https://1.fatih-erikli.workers.dev/register&quot; username=benfatih password=hello
+<pre><code>$ http post &quot;https://1.fatih-erikli.workers.dev/register&quot;
+username=benfatih password=hello
 HTTP/1.1 200 OK
 Access-Control-Allow-Methods: GET,HEAD,POST,OPTIONS
 Access-Control-Allow-Origin: *
@@ -319,5 +324,6 @@ Vary: Accept-Encoding
   
 </div>
 
-  </body>
+</body>
+
 </html>
