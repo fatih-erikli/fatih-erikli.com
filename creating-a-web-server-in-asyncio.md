@@ -134,7 +134,8 @@ We will respond in that way. We need to update our server function accordingly:
 ```python
 async def serve(reader, writer):
     data = await reader.read(100)
-    writer.write(str.encode(prepare_html())) # this is where we prepare the response
+    writer.write(str.encode(prepare_html()))
+    # this is where we prepare the response
     await writer.drain()
     writer.close()
 ```
@@ -244,7 +245,8 @@ I use `httpie` package to send http commands via command lines. Here's how
 I am testing my `/post-something` endpoint.
 
 ```
-$ http post "127.0.0.1:8888/post-something" message="lorem ipsum dolor sit amet"
+$ http post "127.0.0.1:8888/post-something"
+message="lorem ipsum dolor sit amet"
 HTTP/1.1 200 OK
 Content-Length: 50
 Content-Type: text/html

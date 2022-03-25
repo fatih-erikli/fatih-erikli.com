@@ -7,8 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
   <link rel="icon" type="image/png" href="favicon.png" />
-  <link rel="stylesheet" href="index-grid.css?6379e1da43f14822b957bf1cf17a3693" />
-  <link rel="stylesheet" href="styles.css?6379e1da43f14822b957bf1cf17a3693" />
+  <link rel="stylesheet" href="index-grid.css?35e23d07848d49758131ba301f4d744f" />
+  <link rel="stylesheet" href="styles.css?35e23d07848d49758131ba301f4d744f" />
   <script>
     document.addEventListener("keydown", (event) => {
       if (event.code === "Enter") {
@@ -369,7 +369,8 @@ def prepare_html(content, status_code=200):
 <p>We will respond in that way. We need to update our server function accordingly:</p>
 <pre><code class="language-python">async def serve(reader, writer):
     data = await reader.read(100)
-    writer.write(str.encode(prepare_html())) # this is where we prepare the response
+    writer.write(str.encode(prepare_html()))
+    # this is where we prepare the response
     await writer.drain()
     writer.close()
 </code></pre>
@@ -459,7 +460,8 @@ We can use python's json module to parse that JSON document.</p>
 an html document with the message specified in that json package.</p>
 <p>I use <code>httpie</code> package to send http commands via command lines. Here's how
 I am testing my <code>/post-something</code> endpoint.</p>
-<pre><code>$ http post &quot;127.0.0.1:8888/post-something&quot; message=&quot;lorem ipsum dolor sit amet&quot;
+<pre><code>$ http post &quot;127.0.0.1:8888/post-something&quot;
+message=&quot;lorem ipsum dolor sit amet&quot;
 HTTP/1.1 200 OK
 Content-Length: 50
 Content-Type: text/html
