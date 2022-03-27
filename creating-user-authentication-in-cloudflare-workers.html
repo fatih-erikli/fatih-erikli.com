@@ -2,13 +2,13 @@
 <html lang="en">
 
 <head>
-  <title>Developing a User authentication in CF worker</title>
+  <title>Creating a user authentication with Cloudflare Workers</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="6J7qtw4WxlMyJSrsrQPb5AhWCln_bQIEuWOtoX8EzYI" />
   <link rel="icon" type="image/png" href="favicon.png" />
-  <link rel="stylesheet" href="index-grid.css?d0643cfd431c4354bfafda245401f754" />
-  <link rel="stylesheet" href="styles.css?d0643cfd431c4354bfafda245401f754" />
+  <link rel="stylesheet" href="index-grid.css?a65eb4ca47ce40fdaf6e2f04128c910f" />
+  <link rel="stylesheet" href="styles.css?a65eb4ca47ce40fdaf6e2f04128c910f" />
   <script>
     document.addEventListener("keydown", (event) => {
       if (event.code === "Enter") {
@@ -23,8 +23,6 @@
 </head>
 
 <body>
-
-  
   <div aria-label="personal web page" role="feed" aria-busy="false">
   <div role="heading" class="sidebar">
   <br />
@@ -91,7 +89,7 @@
 </div>
 
   <div aria-label="blog detail" role="article" tabindex="-1">
-    <h3 role="heading">Developing a User authentication in CF worker</h3>
+    <h3 role="heading">Creating a user authentication with Cloudflare Workers</h3>
     <article role="document">
       <time>02 Dev, 2021</time>
       <p>I have been trying serverless computing platforms in last years. Basically these platforms allows you
@@ -355,7 +353,34 @@ Vary: Accept-Encoding
 <p>That's all :)</p>
 <p>Happy hacking!</p>
     </article>
-    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1"></div>
+    <div aria-label="blog posts" class="other-posts" role="list" tabindex="-1">
+    <article role="listitem" aria-posinset="3" tabindex="-10">
+      <h3 aria-label="Title"><a role="link" href="asyncio-streams.html">You don't actually need a AsyncIO version of a database driver</a></h3>
+      <time>30 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>In my previous blog-post, I created a simple http server that calls a
+redis method; increases the specified key with request body
+in the redis store.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="3" tabindex="-10">
+      <h3 aria-label="Title"><a role="link" href="asyncio-boilerplate.html">HTTP server boilerplate for AsyncIO</a></h3>
+      <time>30 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>I am not going to create yet another http server for asyncio, rather,
+I will share some code pieces that I can create simple http endpoints
+for AsyncIO.</p></div>
+    </article>
+    
+
+    <article role="listitem" aria-posinset="3" tabindex="-10">
+      <h3 aria-label="Title"><a role="link" href="creating-a-web-server-in-asyncio.html">Creating a web-server in AsyncIO's event loop</a></h3>
+      <time>29 Nov, 2021</time>
+      <div aria-label="Description" role="contentinfo" class="post-preview"><p>AsyncIO is a built-in python library to write concurrent
+code with a new language keywords "async" and "await'. AsyncIO landed
+into python in 3.3 version. Since the Python2 is no longer supported,
+AsyncIO will be our swiss army knife to handle:</p></div>
+    </article>
+    </div>
   </div>
   
 </div>

@@ -1,13 +1,28 @@
 posts:
+  - title: "Test-driven approach to worker-based web applications development"
+    file: test-driven-approach-to-worker-based-applications-development.md
+    date: 08 Dec, 2021
+
+  - title: "My security concerns on server-side rendered web applications"
+    file: security-concerns-on-server-side-rendered-web-applications.md
+    date: 06 Dec, 2021
+
   - title: "IndexedDB: High-performance transactional database in client side"
     file: indexeddb-transactional-database-in-client-side.md
     date: 04 Dev, 2021
 
-  - title: Creating a web-server with AsyncIO
-    file: creating-a-web-server-in-asyncio.md
-    date: 29 Nov, 2021
-
-
-  - title: Developing a User authentication in CF worker
+  - title: Creating a user authentication with Cloudflare Workers
     file: creating-user-authentication-in-cloudflare-workers.md
     date: 02 Dev, 2021
+
+  - title: "You don't actually need a AsyncIO version of a database driver"
+    file: asyncio-streams.md
+    date: 30 Nov, 2021
+
+  - title: "HTTP server boilerplate for AsyncIO"
+    file: asyncio-boilerplate.md
+    date: 30 Nov, 2021
+
+  - title: Creating a web-server in AsyncIO's event loop
+    file: creating-a-web-server-in-asyncio.md
+    date: 29 Nov, 2021
