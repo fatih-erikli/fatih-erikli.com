@@ -4,10 +4,11 @@ structured the date you are processing
 in a declarative way. Pure functional languages such as
 Haskell and Erlang supports pattern matching and
 most of the times it is the only way of writing a
-conditional code. We don't have pattern matching
+conditional code. <s>We don't have pattern matching
 in Javascript or Python, but with some syntactic sugar
 and precompilers such as Typescript, we can use
-pattern matching.
+pattern matching.</s> Edit: It's not a good idea. I don't recommend to implement a pattern matching in Typescript. We need to be
+patient until the time pattern matching will be possible with Javascript. 
 
 I found a library called "ts-pattern". I tried, and it
 works like a charm. By desing, pattern matching runs
@@ -66,34 +67,6 @@ I noticed that the runtime was a bit expensive to match all the cases with ts-pa
 and I worked a little bit to make it faster and I managed to optimize.
 
 I published the library on github and npm called "pattern-select":
-
-<a href="https://github.com/fatih-erikli/pattern-select">pattern-select</a>
-
-
-## Comparison with ts-pattern
-
-```typescript
-console.time('ts-pattern')
-const result = match<Action>(uiAction)
-.with({target: "button-2", "event": "mousedown", timestamp: __}, ({ timestamp }) => timestamp)
-.with({target: "button-1", "event": "mousedown", timestamp: __}, ({ timestamp }) => timestamp)
-.with({target: "button-1", "event": "test", timestamp: __}, ({ timestamp }) => timestamp)
-.with({target: "button-1", "event": "mousedown", timestamp: __}, ({ timestamp }) => timestamp)
-.run();
-console.log('result', result);
-console.timeEnd('ts-pattern'); // 6ms
-
-console.time('pattern-select')
-const result2 = pattern<Action>(uiAction)
-.case({target: "button-2", "event": "mousedown", timestamp: placeholder}, ({ timestamp }: any) => timestamp)
-.case({target: "button-1", "event": "mousedown", timestamp: placeholder}, ({ timestamp }: any) => timestamp)
-.case({target: "button-1", "event": "test", timestamp: placeholder}, ({ timestamp }: any) => timestamp)
-.case({target: "button-1", "event": "mousedown", timestamp: placeholder}, ({ timestamp }: any) => timestamp)
-.match()
-console.log('result', result2);
-console.timeEnd('pattern-select'); // 1ms
-```
-
 
 That's it.
 Happy hacking!

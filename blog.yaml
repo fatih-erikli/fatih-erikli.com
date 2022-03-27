@@ -1,4 +1,12 @@
 posts:
+  - title: "Revisioning Application state in React"
+    file: use-revisioned-state.md
+    date: 04 Dec, 2022.
+
+  - title: "Pattern matching in Typescript"
+    file: pattern-matching-in-typescript.md
+    date: 25 Dec, 2021.
+
   - title: "Test-driven approach to worker-based web applications development"
     file: test-driven-approach-to-worker-based-applications-development.md
     date: 08 Dec, 2021
